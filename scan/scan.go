@@ -3,6 +3,7 @@ package scan
 import (
 	"crypto/md5"
 	"encoding/hex"
+	. "github.com/eloylp/go-file-sentry/file"
 	"io"
 	"log"
 	"os"

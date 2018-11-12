@@ -1,6 +1,7 @@
 package _test
 
 import (
+	. "github.com/eloylp/go-file-sentry/file"
 	. "github.com/eloylp/go-file-sentry/scan"
 	"path/filepath"
 	"testing"
