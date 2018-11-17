@@ -1,4 +1,4 @@
-package _test
+package scan_test
 
 import (
 	. "github.com/eloylp/go-file-sentry/file"
