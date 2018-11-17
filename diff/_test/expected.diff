@@ -1,0 +1,9 @@
+*** Original
+--- Current
+***************
+*** 1,2 ****
+! this.is.a.config.file=configa
+  
+--- 1,2 ----
+! this.is.a.config.file=configb
+  
