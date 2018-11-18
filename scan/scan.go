@@ -3,7 +3,7 @@ package scan
 import (
 	"crypto/md5"
 	"encoding/hex"
-	. "github.com/eloylp/go-file-sentry/file"
+	"github.com/eloylp/go-file-sentry/file"
 	"io"
 	"log"
 	"os"
@@ -11,11 +11,11 @@ import (
 	"strings"
 )
 
-func ScanFile(path string) File {
+func ScanFile(path string) file.File {
 	return FileInfoGatherer(path)
 }
 
-func FQDNCalculator(file *File) {
+func FQDNCalculator(file *file.File) {
 
 	const pathSeparator string = "_"
 	const sysDirNameSeparator = "-"
@@ -30,27 +30,27 @@ func FQDNCalculator(file *File) {
 	file.FQDN = strings.Join(parts, sysDirNameSeparator)
 }
 
-func FileInfoGatherer(path string) File {
-	file := File{}
+func FileInfoGatherer(path string) file.File {
+	targetFile := file.File{}
 	readFile, err := os.Stat(path)
 	if err != nil {
 		log.Fatal(err)
 	}
-	file.Time = readFile.ModTime()
-	file.Path = path
-	file.Sum = GetFileSum(path)
-	FQDNCalculator(&file)
-	return file
+	targetFile.Time = readFile.ModTime()
+	targetFile.Path = path
+	targetFile.Sum = GetFileSum(path)
+	FQDNCalculator(&targetFile)
+	return targetFile
 }
 
 func GetFileSum(path string) string {
-	file, err := os.Open(path)
+	targetFile, err := os.Open(path)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer file.Close()
+	defer targetFile.Close()
 	sum := md5.New()
-	if _, err = io.Copy(sum, file); err != nil {
+	if _, err = io.Copy(sum, targetFile); err != nil {
 		log.Fatal(err)
 	}
 	sumInBytes := sum.Sum(nil)[:16]

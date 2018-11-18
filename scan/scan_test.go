@@ -1,8 +1,8 @@
 package scan_test
 
 import (
-	. "github.com/eloylp/go-file-sentry/file"
-	. "github.com/eloylp/go-file-sentry/scan"
+	"github.com/eloylp/go-file-sentry/file"
+	"github.com/eloylp/go-file-sentry/scan"
 	"path/filepath"
 	"testing"
 	"time"
@@ -18,38 +18,38 @@ func TestFQDNCalculator(t *testing.T) {
 	if err != nil {
 		t.Errorf(err.Error())
 	}
-	file := File{}
-	file.Path = "/etc/fstab"
-	file.Sum = "587399e23181c0a8862b1c8c2a2225a6"
-	file.Time = fileTime
-	FQDNCalculator(&file)
+	testFile := file.File{}
+	testFile.Path = "/etc/fstab"
+	testFile.Sum = "587399e23181c0a8862b1c8c2a2225a6"
+	testFile.Time = fileTime
+	scan.FQDNCalculator(&testFile)
 	expectedFQDN := "etc_fstab-587399e23181c0a8862b1c8c2a2225a6-20180101134354"
 
-	if file.FQDN != expectedFQDN {
-		t.Errorf("Invalid FQDN. Was detected \"%s\" and expected is \"%s\"", file.FQDN, expectedFQDN)
+	if testFile.FQDN != expectedFQDN {
+		t.Errorf("Invalid FQDN. Was detected \"%s\" and expected is \"%s\"", testFile.FQDN, expectedFQDN)
 	}
 }
 
 func TestFileInfoGatherer(t *testing.T) {
 	rawFilePath := getTestResource("fstab")
-	file := FileInfoGatherer(rawFilePath)
+	testFile := scan.FileInfoGatherer(rawFilePath)
 	expectedFQDN := "fstab-587399e23181c0a8862b1c8c2a2225a6-20181029183845"
 	expectedTime := "2018-10-29 18:38:45"
 	expectedSum := "587399e23181c0a8862b1c8c2a2225a6"
 
-	if file.Path != rawFilePath {
-		t.Errorf("Invalid path. Was detected \"%s\" and expected is \"%s\"", file.Path, rawFilePath)
+	if testFile.Path != rawFilePath {
+		t.Errorf("Invalid path. Was detected \"%s\" and expected is \"%s\"", testFile.Path, rawFilePath)
 	}
-	if file.FQDN != expectedFQDN {
-		t.Errorf("Invalid FQDN. Was detected \"%s\" and expected is \"%s\"", file.FQDN, expectedFQDN)
-	}
-
-	if file.Sum != expectedSum {
-		t.Errorf("Invalid file sum. Was detected \"%s\" and expected is \"%s\"", file.Sum, expectedSum)
+	if testFile.FQDN != expectedFQDN {
+		t.Errorf("Invalid FQDN. Was detected \"%s\" and expected is \"%s\"", testFile.FQDN, expectedFQDN)
 	}
 
-	fileTime := file.Time.Format("2006-01-02 15:04:05")
+	if testFile.Sum != expectedSum {
+		t.Errorf("Invalid testFile sum. Was detected \"%s\" and expected is \"%s\"", testFile.Sum, expectedSum)
+	}
+
+	fileTime := testFile.Time.Format("2006-01-02 15:04:05")
 	if fileTime != expectedTime {
-		t.Errorf("Invalid file mod Time. Was detected \"%s\" and expected is \"%s\"", fileTime, expectedTime)
+		t.Errorf("Invalid testFile mod Time. Was detected \"%s\" and expected is \"%s\"", fileTime, expectedTime)
 	}
 }

@@ -2,7 +2,7 @@ package diff_test
 
 import (
 	"github.com/eloylp/go-file-sentry/diff"
-	. "github.com/eloylp/go-file-sentry/file"
+	"github.com/eloylp/go-file-sentry/file"
 	"path/filepath"
 	"testing"
 )
@@ -13,11 +13,11 @@ func getTestResource(resourceName string) string {
 
 func TestGetDiffOfFiles(t *testing.T) {
 
-	fileA := File{}
+	fileA := file.File{}
 	fileA.Path = getTestResource("fileA.conf")
-	fileB := File{}
+	fileB := file.File{}
 	fileB.Path = getTestResource("fileB.conf")
-	expectedDiffFile := File{}
+	expectedDiffFile := file.File{}
 	expectedDiffFile.Path = getTestResource("expected.diff")
 
 	diffOfFiles := diff.GetDiffOfFiles(fileA, fileB)

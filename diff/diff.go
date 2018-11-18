@@ -1,23 +1,23 @@
 package diff
 
 import (
-	. "github.com/eloylp/go-file-sentry/file"
-	. "github.com/pmezard/go-difflib/difflib"
+	"github.com/eloylp/go-file-sentry/file"
+	"github.com/pmezard/go-difflib/difflib"
 	"log"
 )
 
-func GetDiffOfFiles(file File, file2 File) string {
+func GetDiffOfFiles(file file.File, file2 file.File) string {
 
-	diff := ContextDiff{
-		A:        SplitLines(string(file.GetData())),
-		B:        SplitLines(string(file2.GetData())),
+	diff := difflib.ContextDiff{
+		A:        difflib.SplitLines(string(file.GetData())),
+		B:        difflib.SplitLines(string(file2.GetData())),
 		FromFile: "Original",
 		ToFile:   "Current",
 		Context:  3,
 		Eol:      "\n",
 	}
 
-	result, err := GetContextDiffString(diff)
+	result, err := difflib.GetContextDiffString(diff)
 	if err != nil {
 		log.Fatal(err)
 	}
