@@ -23,7 +23,7 @@ func TestFQDNCalculator(t *testing.T) {
 	testFile.Sum = "587399e23181c0a8862b1c8c2a2225a6"
 	testFile.Time = fileTime
 	scan.FQDNCalculator(&testFile)
-	expectedFQDN := "etc_fstab-587399e23181c0a8862b1c8c2a2225a6-20180101134354"
+	expectedFQDN := "587399e23181c0a8862b1c8c2a2225a6-20180101134354"
 
 	if testFile.FQDN != expectedFQDN {
 		t.Errorf("Invalid FQDN. Was detected \"%s\" and expected is \"%s\"", testFile.FQDN, expectedFQDN)
@@ -33,7 +33,7 @@ func TestFQDNCalculator(t *testing.T) {
 func TestFileInfoGatherer(t *testing.T) {
 	rawFilePath := getTestResource("fstab")
 	testFile := scan.FileInfoGatherer(rawFilePath)
-	expectedFQDN := "fstab-587399e23181c0a8862b1c8c2a2225a6-20181029183845"
+	expectedFQDN := "587399e23181c0a8862b1c8c2a2225a6-20181029183845"
 	expectedTime := "2018-10-29 18:38:45"
 	expectedSum := "587399e23181c0a8862b1c8c2a2225a6"
 

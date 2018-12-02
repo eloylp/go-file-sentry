@@ -7,7 +7,6 @@ import (
 	"io"
 	"log"
 	"os"
-	"path/filepath"
 	"strings"
 )
 
@@ -17,16 +16,11 @@ func ScanFile(path string) file.File {
 
 func FQDNCalculator(file *file.File) {
 
-	const pathSeparator string = "_"
 	const sysDirNameSeparator = "-"
 	const systemDirNameDatePart string = "20060102150405"
 
-	filePathPart := strings.Replace(file.Path, string(filepath.Separator), pathSeparator, -1)
-	if strings.HasPrefix(filePathPart, pathSeparator) {
-		filePathPart = strings.TrimLeft(filePathPart, pathSeparator)
-	}
 	fileDatePart := file.Time.Format(systemDirNameDatePart)
-	parts := []string{filePathPart, file.Sum, fileDatePart}
+	parts := []string{file.Sum, fileDatePart}
 	file.FQDN = strings.Join(parts, sysDirNameSeparator)
 }
 
