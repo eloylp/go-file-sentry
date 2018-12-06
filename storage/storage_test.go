@@ -27,11 +27,12 @@ func failIfError(err error) {
 	}
 }
 
+const testRootFolderName string = "tmp"
+const testFolderPrefix string = "go_file_sentry_test_"
+
 func createTestStorageFolder() (string, string) {
-	const testRoot string = "tmp"
-	const prefix string = "go_file_sentry_test_"
 	now := time.Now().Format("20060102150405000000.000000")
-	testFolder := filepath.Join(string(os.PathSeparator), testRoot, prefix+now)
+	testFolder := filepath.Join(string(os.PathSeparator), testRootFolderName, testFolderPrefix+now)
 	os.Mkdir(testFolder, 0755)
 	return testFolder, now
 }
@@ -84,7 +85,8 @@ func TestAddEntryContent(t *testing.T) {
 
 	testFolderPath, testFolderTime := createTestStorageFolder()
 	defer cleanTestStorageFolder(testFolderPath)
-	filePath := writeFileToTestFolder(testFolderPath, "fileA", "Content A	")
+	testFileName := "fileA"
+	filePath := writeFileToTestFolder(testFolderPath, testFileName, "Content A	")
 	fileTime, _ := time.Parse("2006-01-02 15:04:05", "2018-01-01 13:43:54")
 	sampleFile := file.File{}
 	sampleFile.Sum = "587399e23181c0a8862b1c8c2a2225a6"
@@ -98,7 +100,7 @@ func TestAddEntryContent(t *testing.T) {
 	}
 	containerFolder := filepath.Join(
 		testFolderPath,
-		"tmp_go_file_sentry_test_"+testFolderTime+"_fileA",
+		testRootFolderName+"_"+testFolderPrefix+testFolderTime+"_"+testFileName,
 		sampleFile.FQDN)
 	containerFolder = strings.Replace(containerFolder, ".", "_", -1)
 
@@ -107,7 +109,7 @@ func TestAddEntryContent(t *testing.T) {
 
 	storage.AddEntryContent(testFolderPath, storageUnit)
 
-	expectedFilePath := filepath.Join(containerFolder, "fileA")
+	expectedFilePath := filepath.Join(containerFolder, testFileName)
 
 	exist, _ := fsExists(expectedFilePath)
 	if !exist {
