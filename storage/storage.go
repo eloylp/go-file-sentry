@@ -28,12 +28,12 @@ func failIfError(err error) {
 
 func calculateFileContainerName(inputFile file.File) string {
 	const osPathSepNormalized = "_"
-	contName := strings.Replace(inputFile.Path, string(os.PathSeparator), osPathSepNormalized, -1)
-	contName = normalizeForFilePath(contName)
-	if strings.HasPrefix(contName, osPathSepNormalized) {
-		contName = strings.TrimLeft(contName, osPathSepNormalized)
+	containerName := strings.Replace(inputFile.Path, string(os.PathSeparator), osPathSepNormalized, -1)
+	containerName = normalizeForFilePath(containerName)
+	if strings.HasPrefix(containerName, osPathSepNormalized) {
+		containerName = strings.TrimLeft(containerName, osPathSepNormalized)
 	}
-	return contName
+	return containerName
 }
 
 func normalizeForFilePath(input string) string {

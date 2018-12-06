@@ -55,21 +55,16 @@ func fsExists(path string) (bool, error) {
 
 func TestAddNewEntry(t *testing.T) {
 
-	fileTime, err := time.Parse("2006-01-02 15:04:05", "2018-01-01 13:43:54")
-	failIfError(err)
-
-	sampleFile := file.File{}
-	sampleFile.Sum = "587399e23181c0a8862b1c8c2a2225a6"
-	sampleFile.Time = fileTime
-	sampleFile.Path = "/etc/mysql/my.conf"
-	sampleFile.FQDN = "587399e23181c0a8862b1c8c2a2225a6-20180101134354"
-
+	sampleFile := file.File{
+		Path: "/etc/mysql/my.conf",
+		FQDN: "587399e23181c0a8862b1c8c2a2225a6-20180101134354",
+	}
 	testFolderPath, _ := createTestStorageFolder()
 	defer cleanTestStorageFolder(testFolderPath)
-
-	storageUnit := storage.StorageUnit{File: sampleFile}
+	storageUnit := storage.StorageUnit{
+		File: sampleFile,
+	}
 	storage.AddNewEntry(testFolderPath, storageUnit)
-
 	expectedFolderPath := filepath.Join(testFolderPath, "etc_mysql_my_conf", "587399e23181c0a8862b1c8c2a2225a6-20180101134354")
 	exist, err := fsExists(expectedFolderPath)
 
@@ -86,29 +81,28 @@ func TestAddEntryContent(t *testing.T) {
 	testFolderPath, testFolderTime := createTestStorageFolder()
 	defer cleanTestStorageFolder(testFolderPath)
 	testFileName := "fileA"
-	filePath := writeFileToTestFolder(testFolderPath, testFileName, "Content A	")
-	fileTime, _ := time.Parse("2006-01-02 15:04:05", "2018-01-01 13:43:54")
-	sampleFile := file.File{}
-	sampleFile.Sum = "587399e23181c0a8862b1c8c2a2225a6"
-	sampleFile.Time = fileTime
-	sampleFile.Path = filePath
-	sampleFile.FQDN = "587399e23181c0a8862b1c8c2a2225a6-20180101134354"
+	testFileContent := "Content A	"
+	filePath := writeFileToTestFolder(testFolderPath, testFileName, testFileContent)
+	sampleFile := file.File{
+		Path: filePath,
+		FQDN: "587399e23181c0a8862b1c8c2a2225a6-20180101134354",
+	}
 	sampleFileDiffContent := []byte("Differential patch")
 	storageUnit := storage.StorageUnit{
 		File:        sampleFile,
 		DiffContent: sampleFileDiffContent,
 	}
+	const separator = "_"
 	containerFolder := filepath.Join(
 		testFolderPath,
-		testRootFolderName+"_"+testFolderPrefix+testFolderTime+"_"+testFileName,
+		testRootFolderName+separator+testFolderPrefix+testFolderTime+separator+testFileName,
 		sampleFile.FQDN)
-	containerFolder = strings.Replace(containerFolder, ".", "_", -1)
+	containerFolder = strings.Replace(containerFolder, ".", separator, -1)
 
 	err := os.MkdirAll(containerFolder, 0755)
 	failIfError(err)
 
 	storage.AddEntryContent(testFolderPath, storageUnit)
-
 	expectedFilePath := filepath.Join(containerFolder, testFileName)
 
 	exist, _ := fsExists(expectedFilePath)
