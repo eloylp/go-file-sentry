@@ -93,9 +93,10 @@ func TestAddEntryContent(t *testing.T) {
 		DiffContent: sampleFileDiffContent,
 	}
 	const separator = "_"
+	containerName := testRootFolderName + separator + testFolderPrefix + testFolderTime + separator + testFileName
 	containerFolder := filepath.Join(
 		testFolderPath,
-		testRootFolderName+separator+testFolderPrefix+testFolderTime+separator+testFileName,
+		containerName,
 		sampleFile.FQDN)
 	containerFolder = strings.Replace(containerFolder, ".", separator, -1)
 
