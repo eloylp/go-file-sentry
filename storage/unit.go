@@ -8,7 +8,7 @@ import (
 
 type StorageUnit struct {
 	DiffContent []byte
-	File        file.File
+	File        *file.File
 }
 
 func (unit *StorageUnit) GetDiffContent() []byte {

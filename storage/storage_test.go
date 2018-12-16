@@ -79,7 +79,7 @@ func TestAddNewEntry(t *testing.T) {
 	testFilePath := writeFileToTestFolder(testFolderPath, "test.txt", "Content")
 	sampleFile := file.NewFile(testFilePath)
 	storageUnit := storage.StorageUnit{
-		File: *sampleFile,
+		File: sampleFile,
 	}
 	storage.AddNewEntry(testFolderPath, storageUnit)
 	expectedFolderPath := filepath.Join(
@@ -108,7 +108,7 @@ func TestAddEntryContent(t *testing.T) {
 	sampleFile := file.NewFile(filePath)
 	sampleFileDiffContent := []byte("Differential patch")
 	storageUnit := storage.StorageUnit{
-		File:        *sampleFile,
+		File:        sampleFile,
 		DiffContent: sampleFileDiffContent,
 	}
 	containerName := calculateMd5(filePath)
@@ -145,10 +145,11 @@ func TestAddEntryContent(t *testing.T) {
 func TestFindLatestVersion(t *testing.T) {
 
 	testFolderPath := createFixedTestStorageFolder("TestFindLatestVersion")
+	defer cleanTestStorageFolder(testFolderPath)
 	samplePath := writeFileToTestFolder(testFolderPath, "fstab", "Content C")
 	sampleFile := file.NewFile(samplePath)
 	rootPath := getTestResource("root_sample")
-	recoveredFile, err := storage.FindLatestVersion(rootPath, *sampleFile)
+	recoveredFile, err := storage.FindLatestVersion(rootPath, sampleFile)
 	failIfError(err)
 
 	if "Content C" != string(recoveredFile.GetFileData()) {

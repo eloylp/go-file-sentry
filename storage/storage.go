@@ -36,7 +36,7 @@ func AddEntryContent(rootPath string, storageUnit StorageUnit) {
 	failIfError(err)
 }
 
-func FindLatestVersion(rootPath string, scannedFile file.File) (storageUnit StorageUnit, err error) {
+func FindLatestVersion(rootPath string, scannedFile *file.File) (storageUnit StorageUnit, err error) {
 
 	scannedFileStorageUnit := StorageUnit{
 		File: scannedFile,
@@ -52,7 +52,7 @@ func FindLatestVersion(rootPath string, scannedFile file.File) (storageUnit Stor
 	diffContent, err := ioutil.ReadFile(fullFilePath + diffExtension)
 	failIfError(err)
 	storageUnit = StorageUnit{
-		File:        *requestedFile,
+		File:        requestedFile,
 		DiffContent: diffContent,
 	}
 	return storageUnit, err
