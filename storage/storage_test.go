@@ -38,6 +38,12 @@ func createTestStorageFolder() string {
 	return testFolder
 }
 
+func createFixedTestStorageFolder(suffix string) string {
+	testFolder := filepath.Join(string(os.PathSeparator), testRootFolderName, testFolderPrefix+suffix)
+	_ = os.Mkdir(testFolder, 0755)
+	return testFolder
+}
+
 func cleanTestStorageFolder(path string) {
 	err := os.RemoveAll(path)
 	failIfError(err)
@@ -68,20 +74,18 @@ func getTestResource(resourceName string) string {
 
 func TestAddNewEntry(t *testing.T) {
 
-	sampleFile := file.File{
-		Path: "/etc/mysql/my.conf",
-		FQDN: "587399e23181c0a8862b1c8c2a2225a6-20180101134354",
-	}
 	testFolderPath := createTestStorageFolder()
 	defer cleanTestStorageFolder(testFolderPath)
+	testFilePath := writeFileToTestFolder(testFolderPath, "test.txt", "Content")
+	sampleFile := file.NewFile(testFilePath)
 	storageUnit := storage.StorageUnit{
-		File: sampleFile,
+		File: *sampleFile,
 	}
 	storage.AddNewEntry(testFolderPath, storageUnit)
 	expectedFolderPath := filepath.Join(
 		testFolderPath,
-		"07ceeeacdce3f57f0c8164eb8ee21bec",
-		"587399e23181c0a8862b1c8c2a2225a6-20180101134354",
+		storageUnit.CalculateName(),
+		sampleFile.GetFQDN(),
 	)
 	exist, err := fsExists(expectedFolderPath)
 
@@ -101,20 +105,17 @@ func TestAddEntryContent(t *testing.T) {
 	testFileContent := "Content A	"
 	filePath := writeFileToTestFolder(testFolderPath, testFileName, testFileContent)
 
-	sampleFile := file.File{
-		Path: filePath,
-		FQDN: "587399e23181c0a8862b1c8c2a2225a6-20180101134354",
-	}
+	sampleFile := file.NewFile(filePath)
 	sampleFileDiffContent := []byte("Differential patch")
 	storageUnit := storage.StorageUnit{
-		File:        sampleFile,
+		File:        *sampleFile,
 		DiffContent: sampleFileDiffContent,
 	}
 	containerName := calculateMd5(filePath)
 	containerFolder := filepath.Join(
 		testFolderPath,
 		containerName,
-		sampleFile.FQDN)
+		sampleFile.GetFQDN())
 
 	err := os.MkdirAll(containerFolder, 0755)
 	failIfError(err)
@@ -143,22 +144,18 @@ func TestAddEntryContent(t *testing.T) {
 
 func TestFindLatestVersion(t *testing.T) {
 
-	testFolderPath := getTestResource("root_sample")
-	currentDir, _ := os.Getwd()
-	testRootPath := filepath.Join(string(os.PathSeparator), currentDir, testFolderPath)
-	path := "/etc/fstab"
-
-	recoveredFile, err := storage.FindLatestVersion(testRootPath, file.File{
-		Path: path,
-		FQDN: "587399e23181c0a8862b1c8c2a2225a6-20180101134356",
-	})
+	testFolderPath := createFixedTestStorageFolder("TestFindLatestVersion")
+	samplePath := writeFileToTestFolder(testFolderPath, "fstab", "Content C")
+	sampleFile := file.NewFile(samplePath)
+	rootPath := getTestResource("root_sample")
+	recoveredFile, err := storage.FindLatestVersion(rootPath, *sampleFile)
 	failIfError(err)
 
-	if "Content C" != string(recoveredFile.File.GetData()) {
+	if "Content C" != string(recoveredFile.GetFileData()) {
 		t.Fatal("Retrieved file is not the latest.")
 	}
 
-	if "+fake diff C" != string(recoveredFile.DiffContent) {
+	if "+fake diff C" != string(recoveredFile.GetDiffContent()) {
 		t.Fatal("Retrieved file diff is not the latest.")
 	}
 }

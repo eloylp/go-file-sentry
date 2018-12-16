@@ -16,7 +16,7 @@ func (unit *StorageUnit) GetDiffContent() []byte {
 }
 
 func (unit *StorageUnit) GetFileFQDN() string {
-	return unit.File.FQDN
+	return unit.File.GetFQDN()
 }
 
 func (unit *StorageUnit) GetFileName() string {
@@ -28,7 +28,7 @@ func (unit *StorageUnit) GetFileData() []byte {
 }
 
 func (unit *StorageUnit) GetFilePath() string {
-	return unit.File.Path
+	return unit.File.GetPath()
 }
 
 func (unit *StorageUnit) CalculateName() string {

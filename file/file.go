@@ -13,14 +13,14 @@ import (
 )
 
 type File struct {
-	Path string
-	FQDN string
-	Sum  string
-	Time time.Time
+	path string
+	fqdn string
+	sum  string
+	time time.Time
 }
 
 func NewFile(path string) *File {
-	file := File{Path: path}
+	file := File{path: path}
 	file.loadMetadata()
 	return &file
 }
@@ -32,11 +32,11 @@ func (file *File) loadMetadata() {
 }
 
 func (file *File) GetSum() string {
-	return file.Sum
+	return file.sum
 }
 
 func (file *File) calculateSum() {
-	targetFile, err := os.Open(file.Path)
+	targetFile, err := os.Open(file.path)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -47,12 +47,12 @@ func (file *File) calculateSum() {
 	}
 	sumInBytes := sum.Sum(nil)[:16]
 	sumString := hex.EncodeToString(sumInBytes)
-	file.Sum = sumString
+	file.sum = sumString
 }
 
 func (file *File) GetData() []byte {
 
-	dat, err := ioutil.ReadFile(file.Path)
+	dat, err := ioutil.ReadFile(file.path)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -60,25 +60,29 @@ func (file *File) GetData() []byte {
 }
 
 func (file *File) GetName() string {
-	return filepath.Base(file.Path)
+	return filepath.Base(file.path)
 }
 
 func (file *File) GetFQDN() string {
-	return file.FQDN
+	return file.fqdn
 }
 
 func (file *File) calculateFQDN() {
 	const sysDirNameSeparator = "-"
 	const systemDirNameDatePart string = "20060102150405"
-	fileDatePart := file.Time.Format(systemDirNameDatePart)
+	fileDatePart := file.time.Format(systemDirNameDatePart)
 	parts := []string{file.GetSum(), fileDatePart}
-	file.FQDN = strings.Join(parts, sysDirNameSeparator)
+	file.fqdn = strings.Join(parts, sysDirNameSeparator)
 }
 
 func (file *File) calculateTime() {
-	readFile, err := os.Stat(file.Path)
+	readFile, err := os.Stat(file.path)
 	if err != nil {
 		log.Fatal(err)
 	}
-	file.Time = readFile.ModTime()
+	file.time = readFile.ModTime()
+}
+
+func (file *File) GetPath() string {
+	return file.path
 }
