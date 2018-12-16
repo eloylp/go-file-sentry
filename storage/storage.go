@@ -14,17 +14,41 @@ import (
 )
 
 const diffExtension string = ".diff"
-const containerPartsSeparator string = "-"
-const defaultPerms os.FileMode = 0666
-const containerTimePartLayout = "20060102150405"
 
 type StorageUnit struct {
 	DiffContent []byte
 	File        file.File
 }
 
+func (unit *StorageUnit) GetDiffContent() []byte {
+	return unit.DiffContent
+}
+
+func (unit *StorageUnit) GetFileFQDN() string {
+	return unit.File.FQDN
+}
+
+func (unit *StorageUnit) GetFileName() string {
+	return unit.File.GetName()
+}
+
+func (unit *StorageUnit) GetFileData() []byte {
+	return unit.File.GetData()
+}
+
+func (unit *StorageUnit) GetFilePath() string {
+	return unit.File.Path
+}
+
+func (unit *StorageUnit) CalculateName() string {
+	hasher := md5.New()
+	hasher.Write([]byte(unit.GetFilePath()))
+	containerName := hex.EncodeToString(hasher.Sum(nil))
+	return containerName
+}
+
 func AddNewEntry(rootPath string, storageUnitContent StorageUnit) {
-	destination := filepath.Join(rootPath, calculateFileContainerName(storageUnitContent.File), storageUnitContent.File.FQDN)
+	destination := filepath.Join(rootPath, storageUnitContent.CalculateName(), storageUnitContent.GetFileFQDN())
 	err := os.MkdirAll(destination, 0755)
 	failIfError(err)
 }
@@ -35,31 +59,30 @@ func failIfError(err error) {
 	}
 }
 
-func calculateFileContainerName(inputFile file.File) string {
-	hasher := md5.New()
-	hasher.Write([]byte(inputFile.Path))
-	containerName := hex.EncodeToString(hasher.Sum(nil))
-	return containerName
-}
-
 func AddEntryContent(rootPath string, storageUnit StorageUnit) {
-	fileName := storageUnit.File.GetName()
-	containerName := calculateFileContainerName(storageUnit.File)
-	targetFilePath := filepath.Join(rootPath, containerName, storageUnit.File.FQDN, fileName)
+	const defaultPerms os.FileMode = 0666
 
-	err := ioutil.WriteFile(targetFilePath, storageUnit.File.GetData(), defaultPerms)
+	fileName := storageUnit.GetFileName()
+	containerName := storageUnit.CalculateName()
+	targetFilePath := filepath.Join(rootPath, containerName, storageUnit.GetFileFQDN(), fileName)
+	err := ioutil.WriteFile(targetFilePath, storageUnit.GetFileData(), defaultPerms)
 	failIfError(err)
-	err = ioutil.WriteFile(targetFilePath+diffExtension, storageUnit.DiffContent, defaultPerms)
+	err = ioutil.WriteFile(targetFilePath+diffExtension, storageUnit.GetDiffContent(), defaultPerms)
 	failIfError(err)
 }
 
 func FindLatestVersion(rootPath string, scannedFile file.File) (storageUnit StorageUnit, err error) {
-	scannedFileDir := filepath.Join(rootPath, calculateFileContainerName(scannedFile))
-	storedFiles, err := ioutil.ReadDir(scannedFileDir)
-	failIfError(err)
-	lastFile := getLastFileByDate(storedFiles)
 
-	fullFilePath := filepath.Join(scannedFileDir, lastFile.Name(), scannedFile.GetName())
+	scannedFileStorageUnit := StorageUnit{
+		File: scannedFile,
+	}
+	fileContainerDirAbsolutePath := filepath.Join(rootPath, scannedFileStorageUnit.CalculateName())
+	storedVersions, err := ioutil.ReadDir(fileContainerDirAbsolutePath)
+	failIfError(err)
+
+	lastFile := calculateLastFileReference(storedVersions)
+
+	fullFilePath := filepath.Join(fileContainerDirAbsolutePath, lastFile.Name(), scannedFile.GetName())
 	requestedFile := scan.ScanFile(fullFilePath)
 	diffContent, err := ioutil.ReadFile(fullFilePath + diffExtension)
 	failIfError(err)
@@ -70,18 +93,21 @@ func FindLatestVersion(rootPath string, scannedFile file.File) (storageUnit Stor
 	return storageUnit, err
 }
 
-func getLastFileByDate(storedFileContainers []os.FileInfo) os.FileInfo {
+func calculateLastFileReference(storedVersions []os.FileInfo) os.FileInfo {
+	const containerPartsSeparator string = "-"
+	const containerTimePartLayout = "20060102150405"
+
 	var lastTime time.Time
 	var lastFile os.FileInfo
-	for _, storedFileContainer := range storedFileContainers {
-		entryName := storedFileContainer.Name()
+	for _, storedVersion := range storedVersions {
+		entryName := storedVersion.Name()
 		parts := strings.Split(entryName, containerPartsSeparator)
 		timeStampPart := parts[1]
 		parsedTime, err := time.Parse(containerTimePartLayout, timeStampPart)
 		failIfError(err)
 		if parsedTime.After(lastTime) {
 			lastTime = parsedTime
-			lastFile = storedFileContainer
+			lastFile = storedVersion
 		}
 	}
 	return lastFile
