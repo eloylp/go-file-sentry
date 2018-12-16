@@ -24,7 +24,5 @@ func (file *File) GetData() []byte {
 }
 
 func (file *File) GetName() string {
-
 	return filepath.Base(file.Path)
-
 }

@@ -14,7 +14,9 @@ import (
 )
 
 const diffExtension string = ".diff"
+const containerPartsSeparator string = "-"
 const defaultPerms os.FileMode = 0666
+const containerTimePartLayout = "20060102150405"
 
 type StorageUnit struct {
 	DiffContent []byte
@@ -59,7 +61,7 @@ func FindLatestVersion(rootPath string, scannedFile file.File) (storageUnit Stor
 
 	fullFilePath := filepath.Join(scannedFileDir, lastFile.Name(), scannedFile.GetName())
 	requestedFile := scan.ScanFile(fullFilePath)
-	diffContent, err := ioutil.ReadFile(fullFilePath + ".diff")
+	diffContent, err := ioutil.ReadFile(fullFilePath + diffExtension)
 	failIfError(err)
 	storageUnit = StorageUnit{
 		File:        requestedFile,
@@ -73,8 +75,9 @@ func getLastFileByDate(storedFileContainers []os.FileInfo) os.FileInfo {
 	var lastFile os.FileInfo
 	for _, storedFileContainer := range storedFileContainers {
 		entryName := storedFileContainer.Name()
-		sep := strings.Split(entryName, "-")
-		parsedTime, err := time.Parse("20060102150405", sep[1])
+		parts := strings.Split(entryName, containerPartsSeparator)
+		timeStampPart := parts[1]
+		parsedTime, err := time.Parse(containerTimePartLayout, timeStampPart)
 		failIfError(err)
 		if parsedTime.After(lastTime) {
 			lastTime = parsedTime
