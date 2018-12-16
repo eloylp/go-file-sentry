@@ -2,7 +2,6 @@ package storage
 
 import (
 	"github.com/eloylp/go-file-sentry/file"
-	"github.com/eloylp/go-file-sentry/scan"
 	"io/ioutil"
 	"log"
 	"os"
@@ -49,11 +48,11 @@ func FindLatestVersion(rootPath string, scannedFile file.File) (storageUnit Stor
 	lastVersion := calculateLastVersionReference(storedVersions)
 
 	fullFilePath := filepath.Join(fileContainerDirAbsolutePath, lastVersion.Name(), scannedFile.GetName())
-	requestedFile := scan.ScanFile(fullFilePath)
+	requestedFile := file.NewFile(fullFilePath)
 	diffContent, err := ioutil.ReadFile(fullFilePath + diffExtension)
 	failIfError(err)
 	storageUnit = StorageUnit{
-		File:        requestedFile,
+		File:        *requestedFile,
 		DiffContent: diffContent,
 	}
 	return storageUnit, err

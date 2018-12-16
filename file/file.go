@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -25,7 +26,9 @@ func NewFile(path string) *File {
 }
 
 func (file *File) loadMetadata() {
+	file.calculateTime()
 	file.calculateSum()
+	file.calculateFQDN()
 }
 
 func (file *File) GetSum() string {
@@ -58,4 +61,24 @@ func (file *File) GetData() []byte {
 
 func (file *File) GetName() string {
 	return filepath.Base(file.Path)
+}
+
+func (file *File) GetFQDN() string {
+	return file.FQDN
+}
+
+func (file *File) calculateFQDN() {
+	const sysDirNameSeparator = "-"
+	const systemDirNameDatePart string = "20060102150405"
+	fileDatePart := file.Time.Format(systemDirNameDatePart)
+	parts := []string{file.GetSum(), fileDatePart}
+	file.FQDN = strings.Join(parts, sysDirNameSeparator)
+}
+
+func (file *File) calculateTime() {
+	readFile, err := os.Stat(file.Path)
+	if err != nil {
+		log.Fatal(err)
+	}
+	file.Time = readFile.ModTime()
 }
