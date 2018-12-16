@@ -1,12 +1,16 @@
 package storage
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"github.com/eloylp/go-file-sentry/file"
+	"github.com/eloylp/go-file-sentry/scan"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
+	time2 "time"
 )
 
 type StorageUnit struct {
@@ -27,12 +31,9 @@ func failIfError(err error) {
 }
 
 func calculateFileContainerName(inputFile file.File) string {
-	const osPathSepNormalized = "_"
-	containerName := strings.Replace(inputFile.Path, string(os.PathSeparator), osPathSepNormalized, -1)
-	containerName = normalizeForFilePath(containerName)
-	if strings.HasPrefix(containerName, osPathSepNormalized) {
-		containerName = strings.TrimLeft(containerName, osPathSepNormalized)
-	}
+	hasher := md5.New()
+	hasher.Write([]byte(inputFile.Path))
+	containerName := hex.EncodeToString(hasher.Sum(nil))
 	return containerName
 }
 
@@ -49,4 +50,32 @@ func AddEntryContent(rootPath string, storageUnit StorageUnit) {
 	failIfError(err)
 	err = ioutil.WriteFile(targetFilePath+".diff", storageUnit.DiffContent, 0666)
 	failIfError(err)
+}
+
+func FindLatestVersion(rootPath string, scannedFile file.File) (storageUnit StorageUnit, err error) {
+	scannedFileDir := filepath.Join(rootPath, calculateFileContainerName(scannedFile))
+	storedFiles, err := ioutil.ReadDir(scannedFileDir)
+	failIfError(err)
+	var lastTime time2.Time
+	var lastFile os.FileInfo
+	for _, storedFile := range storedFiles {
+		entryName := storedFile.Name()
+		sep := strings.Split(entryName, "-")
+		parsedTime, err := time2.Parse("20060102150405", sep[1])
+		failIfError(err)
+		if parsedTime.After(lastTime) {
+			lastTime = parsedTime
+			lastFile = storedFile
+		}
+	}
+
+	fullFilePath := filepath.Join(scannedFileDir, lastFile.Name(), scannedFile.GetName())
+	requestedFile := scan.ScanFile(fullFilePath)
+	diffContent, err := ioutil.ReadFile(fullFilePath + ".diff")
+	failIfError(err)
+	storageUnit = StorageUnit{
+		File:        requestedFile,
+		DiffContent: diffContent,
+	}
+	return storageUnit, err
 }
