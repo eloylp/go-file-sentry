@@ -2,14 +2,12 @@ package file_test
 
 import (
 	"github.com/eloylp/go-file-sentry/file"
-	"os"
 	"path/filepath"
 	"testing"
 )
 
 func TestFileGetData(t *testing.T) {
-	f := file.File{}
-	f.Path = filepath.Join("file.txt")
+	f := file.NewFile(filepath.Join("file.txt"))
 	data := f.GetData()
 	text := string(data)
 	expectedContent := "This is a test file."
@@ -19,11 +17,19 @@ func TestFileGetData(t *testing.T) {
 }
 
 func TestFileGetName(t *testing.T) {
-	f := file.File{}
-	f.Path = filepath.Join(string(os.PathSeparator), "etc", "file.txt")
+	f := file.NewFile(filepath.Join("file.txt"))
 	name := f.GetName()
 	expectedName := "file.txt"
 	if name != expectedName {
 		t.Errorf("Expected name of file is %s , result was %s", expectedName, name)
 	}
+}
+
+func TestNewFile(t *testing.T) {
+	f := file.NewFile(filepath.Join("file.txt"))
+	expectedSum := "3de8f8b0dc94b8c2230fab9ec0ba0506"
+	if f.GetSum() != expectedSum {
+		t.Errorf("Expected sum of file is %s , result was %s", expectedSum, f.GetSum())
+	}
+
 }

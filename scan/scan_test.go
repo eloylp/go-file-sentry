@@ -44,8 +44,8 @@ func TestFileInfoGatherer(t *testing.T) {
 		t.Errorf("Invalid FQDN. Was detected \"%s\" and expected is \"%s\"", testFile.FQDN, expectedFQDN)
 	}
 
-	if testFile.Sum != expectedSum {
-		t.Errorf("Invalid testFile sum. Was detected \"%s\" and expected is \"%s\"", testFile.Sum, expectedSum)
+	if testFile.GetSum() != expectedSum {
+		t.Errorf("Invalid testFile sum. Was detected \"%s\" and expected is \"%s\"", testFile.GetSum(), expectedSum)
 	}
 
 	fileTime := testFile.Time.Format("2006-01-02 15:04:05")
