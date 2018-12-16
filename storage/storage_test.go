@@ -34,7 +34,7 @@ const testFolderPrefix string = "go_file_sentry_test_"
 func createTestStorageFolder() string {
 	uuidGen, _ := uuid.NewV4()
 	testFolder := filepath.Join(string(os.PathSeparator), testRootFolderName, testFolderPrefix+uuidGen.String())
-	os.Mkdir(testFolder, 0755)
+	_ = os.Mkdir(testFolder, 0755)
 	return testFolder
 }
 
@@ -146,7 +146,6 @@ func TestFindLatestVersion(t *testing.T) {
 	testFolderPath := getTestResource("root_sample")
 	currentDir, _ := os.Getwd()
 	testRootPath := filepath.Join(string(os.PathSeparator), currentDir, testFolderPath)
-	// path := filepath.Join(testRootPath, "816a3ef77b62ade41c3f936c958aa555", "7b8fdf40404049204ed4feb3c8e99480-20180101134356", "fstab")
 	path := "/etc/fstab"
 
 	recoveredFile, err := storage.FindLatestVersion(testRootPath, file.File{
