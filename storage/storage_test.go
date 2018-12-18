@@ -78,9 +78,7 @@ func TestAddNewEntry(t *testing.T) {
 	defer cleanTestStorageFolder(testFolderPath)
 	testFilePath := writeFileToTestFolder(testFolderPath, "test.txt", "Content")
 	sampleFile := file.NewFile(testFilePath)
-	storageUnit := storage.StorageUnit{
-		File: sampleFile,
-	}
+	storageUnit := storage.NewStorageUnit([]byte{}, sampleFile)
 	storage.AddNewEntry(testFolderPath, storageUnit)
 	expectedFolderPath := filepath.Join(
 		testFolderPath,
@@ -107,10 +105,7 @@ func TestAddEntryContent(t *testing.T) {
 
 	sampleFile := file.NewFile(filePath)
 	sampleFileDiffContent := []byte("Differential patch")
-	storageUnit := storage.StorageUnit{
-		File:        sampleFile,
-		DiffContent: sampleFileDiffContent,
-	}
+	storageUnit := storage.NewStorageUnit(sampleFileDiffContent, sampleFile)
 	containerName := calculateMd5(filePath)
 	containerFolder := filepath.Join(
 		testFolderPath,
@@ -125,14 +120,14 @@ func TestAddEntryContent(t *testing.T) {
 
 	exist, _ := fsExists(expectedFilePath)
 	if !exist {
-		t.Fatal("File doesnt exist in storage engine.")
+		t.Fatal("file doesnt exist in storage engine.")
 	}
 
 	expectedFileDiffPath := expectedFilePath + ".diff"
 	exist, err = fsExists(expectedFileDiffPath)
 	failIfError(err)
 	if !exist {
-		t.Fatal("File diff doesnt exist in storage engine.")
+		t.Fatal("file diff doesnt exist in storage engine.")
 	}
 
 	diffContent, err := ioutil.ReadFile(expectedFileDiffPath)

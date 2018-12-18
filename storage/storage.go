@@ -12,7 +12,7 @@ import (
 
 const diffExtension string = ".diff"
 
-func AddNewEntry(rootPath string, storageUnitContent StorageUnit) {
+func AddNewEntry(rootPath string, storageUnitContent *StorageUnit) {
 	destination := filepath.Join(rootPath, storageUnitContent.CalculateName(), storageUnitContent.GetFileFQDN())
 	err := os.MkdirAll(destination, 0755)
 	failIfError(err)
@@ -24,7 +24,7 @@ func failIfError(err error) {
 	}
 }
 
-func AddEntryContent(rootPath string, storageUnit StorageUnit) {
+func AddEntryContent(rootPath string, storageUnit *StorageUnit) {
 	const defaultPerms os.FileMode = 0666
 
 	fileName := storageUnit.GetFileName()
@@ -39,7 +39,7 @@ func AddEntryContent(rootPath string, storageUnit StorageUnit) {
 func FindLatestVersion(rootPath string, scannedFile *file.File) (storageUnit StorageUnit, err error) {
 
 	scannedFileStorageUnit := StorageUnit{
-		File: scannedFile,
+		file: scannedFile,
 	}
 	fileContainerDirAbsolutePath := filepath.Join(rootPath, scannedFileStorageUnit.CalculateName())
 	storedVersions, err := ioutil.ReadDir(fileContainerDirAbsolutePath)
@@ -52,8 +52,8 @@ func FindLatestVersion(rootPath string, scannedFile *file.File) (storageUnit Sto
 	diffContent, err := ioutil.ReadFile(fullFilePath + diffExtension)
 	failIfError(err)
 	storageUnit = StorageUnit{
-		File:        requestedFile,
-		DiffContent: diffContent,
+		file:        requestedFile,
+		diffContent: diffContent,
 	}
 	return storageUnit, err
 }

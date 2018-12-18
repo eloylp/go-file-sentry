@@ -7,28 +7,36 @@ import (
 )
 
 type StorageUnit struct {
-	DiffContent []byte
-	File        *file.File
+	diffContent []byte
+	file        *file.File
+}
+
+func NewStorageUnit(diffContent []byte, file *file.File) *StorageUnit {
+	return &StorageUnit{diffContent: diffContent, file: file}
 }
 
 func (unit *StorageUnit) GetDiffContent() []byte {
-	return unit.DiffContent
+	return unit.diffContent
+}
+
+func (unit *StorageUnit) GetFile() *file.File {
+	return unit.file
 }
 
 func (unit *StorageUnit) GetFileFQDN() string {
-	return unit.File.GetFQDN()
+	return unit.GetFile().GetFQDN()
 }
 
 func (unit *StorageUnit) GetFileName() string {
-	return unit.File.GetName()
+	return unit.GetFile().GetName()
 }
 
 func (unit *StorageUnit) GetFileData() []byte {
-	return unit.File.GetData()
+	return unit.GetFile().GetData()
 }
 
 func (unit *StorageUnit) GetFilePath() string {
-	return unit.File.GetPath()
+	return unit.GetFile().GetPath()
 }
 
 func (unit *StorageUnit) CalculateName() string {
