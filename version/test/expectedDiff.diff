@@ -1,0 +1,7 @@
+*** Original
+--- Current
+***************
+*** 1 ****
+! this.is.the.config=false
+--- 1 ----
+! this.is.the.config=true
