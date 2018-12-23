@@ -36,6 +36,18 @@ func AddEntryContent(rootPath string, storageUnit *StorageUnit) {
 	failIfError(err)
 }
 
+type VersionNotFound struct {
+	err string
+}
+
+func NewVersionNotFoundError(err string) *VersionNotFound {
+	return &VersionNotFound{err: err}
+}
+
+func (v VersionNotFound) Error() string {
+	return v.err
+}
+
 func FindLatestVersion(rootPath string, scannedFile *file.File) (storageUnit StorageUnit, err error) {
 
 	scannedFileStorageUnit := StorageUnit{
@@ -43,10 +55,11 @@ func FindLatestVersion(rootPath string, scannedFile *file.File) (storageUnit Sto
 	}
 	fileContainerDirAbsolutePath := filepath.Join(rootPath, scannedFileStorageUnit.CalculateName())
 	storedVersions, err := ioutil.ReadDir(fileContainerDirAbsolutePath)
-	failIfError(err)
 
+	if storedVersions == nil {
+		return storageUnit, NewVersionNotFoundError("Theres no previous storage units.")
+	}
 	lastVersion := calculateLastVersionReference(storedVersions)
-
 	fullFilePath := filepath.Join(fileContainerDirAbsolutePath, lastVersion.Name(), scannedFile.GetName())
 	requestedFile := file.NewFile(fullFilePath)
 	diffContent, err := ioutil.ReadFile(fullFilePath + diffExtension)

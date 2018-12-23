@@ -93,3 +93,18 @@ func TestFindLatestVersion(t *testing.T) {
 		t.Fatal("Retrieved file diff is not the latest.")
 	}
 }
+
+func TestFindLatestVersionNotFound(t *testing.T) {
+
+	testFolderPath := _test.CreateTestStorageFolder()
+	defer _test.CleanTestStorageFolder(testFolderPath)
+	samplePath := _test.WriteFileToTestFolder(testFolderPath, "fstab", "Content C")
+	sampleFile := file.NewFile(samplePath)
+	rootPath := _test.CreateTestStorageFolder()
+	defer _test.CleanTestStorageFolder(rootPath)
+	_, err := storage.FindLatestVersion(rootPath, sampleFile)
+	expectedErrorMessage := "Theres no previous storage units."
+	if err.Error() != expectedErrorMessage {
+		t.Fatalf("We are expecting error '%s', got '%s'", expectedErrorMessage, err.Error())
+	}
+}
