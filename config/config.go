@@ -9,7 +9,7 @@ func (v *Config) WatchedFiles() []string {
 	return v.watchedFiles
 }
 
-func NewVersion(storagePath string, watchedFiles []string) *Config {
+func NewConfig(storagePath string, watchedFiles []string) *Config {
 	return &Config{storagePath: storagePath, watchedFiles: watchedFiles}
 }
 

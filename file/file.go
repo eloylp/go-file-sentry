@@ -21,11 +21,11 @@ type File struct {
 
 func NewFile(path string) *File {
 	file := File{path: path}
-	file.loadMetadata()
+	file.LoadMetadata()
 	return &file
 }
 
-func (file *File) loadMetadata() {
+func (file *File) LoadMetadata() {
 	file.calculateTime()
 	file.calculateSum()
 	file.calculateFQDN()
