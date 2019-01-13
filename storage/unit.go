@@ -24,19 +24,19 @@ func (unit *StorageUnit) GetFile() *file.File {
 }
 
 func (unit *StorageUnit) GetFileFQDN() string {
-	return unit.GetFile().GetFQDN()
+	return unit.GetFile().FQDN()
 }
 
 func (unit *StorageUnit) GetFileName() string {
-	return unit.GetFile().GetName()
+	return unit.GetFile().Name()
 }
 
 func (unit *StorageUnit) GetFileData() []byte {
-	return unit.GetFile().GetData()
+	return unit.GetFile().Data()
 }
 
 func (unit *StorageUnit) GetFilePath() string {
-	return unit.GetFile().GetPath()
+	return unit.GetFile().Path()
 }
 
 func (unit *StorageUnit) CalculateName() string {

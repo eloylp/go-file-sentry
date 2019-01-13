@@ -23,7 +23,7 @@ func TestMakeNewVersion(t *testing.T) {
 
 	expectedContainerPath := calculateExpectedContainerPath(testStorageFolder, testConfFile)
 
-	expectedFilePath := filepath.Join(expectedContainerPath, testConfFile.GetName())
+	expectedFilePath := filepath.Join(expectedContainerPath, testConfFile.Name())
 	assertFileContent(expectedFilePath, expectedFileContent, t)
 	expectedFileDiffPath := expectedFilePath + ".diff"
 	expectedFileDiffContent := []byte("")
@@ -50,8 +50,8 @@ func assertDiffs(fileDiffContent []byte, expectedFileDiffContent []byte, t *test
 func calculateExpectedContainerPath(testStorageFolder string, testConfFile *file.File) string {
 	return filepath.Join(
 		testStorageFolder,
-		_test.CalculateMd5(testConfFile.GetPath()),
-		testConfFile.GetFQDN(),
+		_test.CalculateMd5(testConfFile.Path()),
+		testConfFile.FQDN(),
 	)
 }
 
@@ -71,10 +71,10 @@ func TestMakeSecondVersion(t *testing.T) {
 
 	version.MakeNewVersion(testStorageFolder, testConfFile2)
 	expectedContainerPath := calculateExpectedContainerPath(testStorageFolder, testConfFile2)
-	expectedFilePath := filepath.Join(expectedContainerPath, testConfFile.GetName())
+	expectedFilePath := filepath.Join(expectedContainerPath, testConfFile.Name())
 
 	assertFileContent(expectedFilePath, expectedFileContent, t)
-	expectedFileDiffPath := filepath.Join(expectedContainerPath, testConfFile2.GetName()+".diff")
+	expectedFileDiffPath := filepath.Join(expectedContainerPath, testConfFile2.Name()+".diff")
 	expectedFileDiffContent, err := ioutil.ReadFile(_test.GetTestResource("expectedDiff.diff"))
 	_test.FailIfError(err)
 	fileDiffContent, err := ioutil.ReadFile(expectedFileDiffPath)

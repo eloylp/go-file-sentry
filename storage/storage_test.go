@@ -21,7 +21,7 @@ func TestAddNewEntry(t *testing.T) {
 	expectedFolderPath := filepath.Join(
 		testFolderPath,
 		storageUnit.CalculateName(),
-		sampleFile.GetFQDN(),
+		sampleFile.FQDN(),
 	)
 	exist, err := _test.FsExists(expectedFolderPath)
 
@@ -48,7 +48,7 @@ func TestAddEntryContent(t *testing.T) {
 	containerFolder := filepath.Join(
 		testFolderPath,
 		containerName,
-		sampleFile.GetFQDN())
+		sampleFile.FQDN())
 
 	err := os.MkdirAll(containerFolder, 0755)
 	_test.FailIfError(err)

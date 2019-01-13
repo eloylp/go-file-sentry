@@ -14,7 +14,7 @@ func TestGetDiffOfFiles(t *testing.T) {
 	expectedDiffFile := file.NewFile(_test.GetTestResource("expected.diff"))
 
 	diffOfFiles := diff.GetDiffOfFiles(fileA, fileB)
-	expectedDiffOfFiles := string(expectedDiffFile.GetData())
+	expectedDiffOfFiles := string(expectedDiffFile.Data())
 
 	if expectedDiffOfFiles != diffOfFiles {
 		t.Errorf("Files diff do not match expected result.")

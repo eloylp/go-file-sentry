@@ -8,7 +8,7 @@ import (
 
 func WatchFile(file *file.File, handler func(file *file.File)) {
 	events := make(chan notify.EventInfo, 1)
-	err := notify.Watch(file.GetPath(), events, notify.InCloseWrite)
+	err := notify.Watch(file.Path(), events, notify.InCloseWrite)
 	if err != nil {
 		log.Fatal(err)
 	}

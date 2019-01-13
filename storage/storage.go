@@ -60,7 +60,7 @@ func FindLatestVersion(rootPath string, scannedFile *file.File) (storageUnit Sto
 		return storageUnit, NewVersionNotFoundError("Theres no previous storage units.")
 	}
 	lastVersion := calculateLastVersionReference(storedVersions)
-	fullFilePath := filepath.Join(fileContainerDirAbsolutePath, lastVersion.Name(), scannedFile.GetName())
+	fullFilePath := filepath.Join(fileContainerDirAbsolutePath, lastVersion.Name(), scannedFile.Name())
 	requestedFile := file.NewFile(fullFilePath)
 	diffContent, err := ioutil.ReadFile(fullFilePath + diffExtension)
 	failIfError(err)

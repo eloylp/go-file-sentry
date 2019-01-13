@@ -9,8 +9,8 @@ import (
 func GetDiffOfFiles(file *file.File, file2 *file.File) string {
 
 	diff := difflib.ContextDiff{
-		A:        difflib.SplitLines(string(file.GetData())),
-		B:        difflib.SplitLines(string(file2.GetData())),
+		A:        difflib.SplitLines(string(file.Data())),
+		B:        difflib.SplitLines(string(file2.Data())),
 		FromFile: "Original",
 		ToFile:   "Current",
 		Context:  3,

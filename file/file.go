@@ -31,7 +31,7 @@ func (file *File) LoadMetadata() {
 	file.calculateFQDN()
 }
 
-func (file *File) GetSum() string {
+func (file *File) Sum() string {
 	return file.sum
 }
 
@@ -50,7 +50,7 @@ func (file *File) calculateSum() {
 	file.sum = sumString
 }
 
-func (file *File) GetData() []byte {
+func (file *File) Data() []byte {
 
 	dat, err := ioutil.ReadFile(file.path)
 	if err != nil {
@@ -59,11 +59,11 @@ func (file *File) GetData() []byte {
 	return dat
 }
 
-func (file *File) GetName() string {
+func (file *File) Name() string {
 	return filepath.Base(file.path)
 }
 
-func (file *File) GetFQDN() string {
+func (file *File) FQDN() string {
 	return file.fqdn
 }
 
@@ -71,7 +71,7 @@ func (file *File) calculateFQDN() {
 	const sysDirNameSeparator = "-"
 	const systemDirNameDatePart string = "20060102150405"
 	fileDatePart := file.time.Format(systemDirNameDatePart)
-	parts := []string{file.GetSum(), fileDatePart}
+	parts := []string{file.Sum(), fileDatePart}
 	file.fqdn = strings.Join(parts, sysDirNameSeparator)
 }
 
@@ -83,6 +83,6 @@ func (file *File) calculateTime() {
 	file.time = readFile.ModTime()
 }
 
-func (file *File) GetPath() string {
+func (file *File) Path() string {
 	return file.path
 }
