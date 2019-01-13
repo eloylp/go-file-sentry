@@ -18,6 +18,15 @@ func WriteFileToTestFolder(testFolderPath string, name string, content string) s
 	FailIfError(err)
 	return filePath
 }
+
+func AppendDataToTestFile(filePath string, content string) {
+	testFile, err := os.OpenFile(filePath, os.O_WRONLY|os.O_APPEND, 0666)
+	FailIfError(err)
+	defer testFile.Close()
+	_, err = testFile.WriteString(content)
+	FailIfError(err)
+}
+
 func FailIfError(err error) {
 	if err != nil {
 		log.Fatal(err)
