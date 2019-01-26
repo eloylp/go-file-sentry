@@ -26,16 +26,16 @@ func NewFile(path string) *File {
 }
 
 func (file *File) LoadMetadata() {
-	file.calculateTime()
-	file.calculateSum()
-	file.calculateFQDN()
+	file.calcTime()
+	file.calcSum()
+	file.calcFQDN()
 }
 
 func (file *File) Sum() string {
 	return file.sum
 }
 
-func (file *File) calculateSum() {
+func (file *File) calcSum() {
 	targetFile, err := os.Open(file.path)
 	if err != nil {
 		log.Fatal(err)
@@ -67,15 +67,15 @@ func (file *File) FQDN() string {
 	return file.fqdn
 }
 
-func (file *File) calculateFQDN() {
+func (file *File) calcFQDN() {
 	const sysDirNameSeparator = "-"
-	const systemDirNameDatePart string = "20060102150405"
+	const systemDirNameDatePart = "20060102150405"
 	fileDatePart := file.time.Format(systemDirNameDatePart)
 	parts := []string{file.Sum(), fileDatePart}
 	file.fqdn = strings.Join(parts, sysDirNameSeparator)
 }
 
-func (file *File) calculateTime() {
+func (file *File) calcTime() {
 	readFile, err := os.Stat(file.path)
 	if err != nil {
 		log.Fatal(err)

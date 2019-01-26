@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestFileGetData(t *testing.T) {
+func TestFileData(t *testing.T) {
 	f := file.NewFile(_test.GetTestResource("file.txt"))
 	data := f.Data()
 	text := string(data)
@@ -16,7 +16,7 @@ func TestFileGetData(t *testing.T) {
 	}
 }
 
-func TestFileGetName(t *testing.T) {
+func TestFileName(t *testing.T) {
 	f := file.NewFile(_test.GetTestResource("file.txt"))
 	name := f.Name()
 	expectedName := "file.txt"
