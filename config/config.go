@@ -1,22 +1,51 @@
 package config
 
+import (
+	"bufio"
+	"flag"
+	"log"
+	"os"
+)
+
 type Config struct {
-	storagePath  string
-	watchedFiles []string
+	storagePath string
+	wFiles      []string
 }
 
-func (v *Config) WatchedFiles() []string {
-	return v.watchedFiles
+func (v *Config) WFiles() []string {
+	return v.wFiles
 }
-
-func NewConfig(storagePath string, watchedFiles []string) *Config {
-	return &Config{storagePath: storagePath, watchedFiles: watchedFiles}
-}
-
 func (v *Config) StoragePath() string {
 	return v.storagePath
 }
+func NewConfig(storagePath string, watchedFiles []string) *Config {
+	return &Config{storagePath: storagePath, wFiles: watchedFiles}
+}
 
-func (v *Config) SetStoragePath(storagePath string) {
-	v.storagePath = storagePath
+func NewConfigFromParams() *Config {
+	var wFilesPath string
+	var storagePath string
+	flag.StringVar(&wFilesPath, "files", "", "The path to files list to watch")
+	flag.StringVar(&storagePath, "storage-path", "", "The root to the storage to store file versions")
+	flag.Parse()
+	filesWatched, err := parseWFiles(wFilesPath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return NewConfig(storagePath, filesWatched)
+}
+
+func parseWFiles(listPath string) ([]string, error) {
+
+	file, err := os.Open(listPath)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+	scanner := bufio.NewScanner(file)
+	var wFiles []string
+	for scanner.Scan() {
+		wFiles = append(wFiles, scanner.Text())
+	}
+	return wFiles, nil
 }

@@ -8,10 +8,7 @@ import (
 func main() {
 
 	done := make(chan bool)
-	cfg := config.NewConfig(
-		"/tmp/test/root",
-		[]string{"/tmp/test/file1.txt", "/tmp/test/file1.txt"})
-
+	cfg := config.NewConfigFromParams()
 	sentry.StartSentry(cfg)
 	<-done
 }

@@ -8,7 +8,7 @@ import (
 )
 
 func StartSentry(cfg *config.Config) {
-	for _, watchedFile := range cfg.WatchedFiles() {
+	for _, watchedFile := range cfg.WFiles() {
 		wFile := file.NewFile(watchedFile)
 		go watcher.WatchFile(wFile, func(file *file.File) {
 			version.MakeNewVersion(cfg.StoragePath(), file)
