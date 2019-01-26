@@ -6,7 +6,7 @@ import (
 	"log"
 )
 
-func WatchFile(file *file.File, handler func(file *file.File)) {
+func WFile(file *file.File, handler func(file *file.File)) {
 	events := make(chan notify.EventInfo, 1)
 	err := notify.Watch(file.Path(), events, notify.InCloseWrite)
 	if err != nil {

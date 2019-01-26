@@ -19,7 +19,7 @@ func TestMakeNewVersion(t *testing.T) {
 	expectedFileContent := "this.is.the.config=true"
 	testConfFilePath := _test.WriteFileToTestFolder(testFolder, "daemon.config", expectedFileContent)
 	testConfFile := file.NewFile(testConfFilePath)
-	version.MakeNewVersion(testStorageFolder, testConfFile)
+	version.NewVersion(testStorageFolder, testConfFile)
 
 	expectedContainerPath := calculateExpectedContainerPath(testStorageFolder, testConfFile)
 
@@ -64,12 +64,12 @@ func TestMakeSecondVersion(t *testing.T) {
 
 	testConfFilePath := _test.WriteFileToTestFolder(testFolder, "daemon.config", "this.is.the.config=true")
 	testConfFile := file.NewFile(testConfFilePath)
-	version.MakeNewVersion(testStorageFolder, testConfFile)
+	version.NewVersion(testStorageFolder, testConfFile)
 	expectedFileContent := "this.is.the.config=false"
 	testConfFile2Path := _test.WriteFileToTestFolder(testFolder, "daemon.config", expectedFileContent)
 	testConfFile2 := file.NewFile(testConfFile2Path)
 
-	version.MakeNewVersion(testStorageFolder, testConfFile2)
+	version.NewVersion(testStorageFolder, testConfFile2)
 	expectedContainerPath := calculateExpectedContainerPath(testStorageFolder, testConfFile2)
 	expectedFilePath := filepath.Join(expectedContainerPath, testConfFile.Name())
 

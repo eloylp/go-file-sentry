@@ -7,19 +7,19 @@ import (
 	"log"
 )
 
-func MakeNewVersion(rootPath string, file *file.File) {
+func NewVersion(rootPath string, file *file.File) {
 	var diffFromPrevious string
-	previousUnit, err := storage.FindLatestVersion(rootPath, file)
+	previousUnit, err := storage.LatestVersion(rootPath, file)
 	switch err.(type) {
 	case *storage.VersionNotFound:
 		diffFromPrevious = ""
 	case nil:
-		diffFromPrevious = diff.DiffOfFiles(file, previousUnit.GetFile())
+		diffFromPrevious = diff.DiffOfFiles(file, previousUnit.File())
 	default:
 		log.Fatal(err)
 	}
 
 	unit := storage.NewStorageUnit([]byte(diffFromPrevious), file)
-	storage.AddNewEntry(rootPath, unit)
-	storage.AddEntryContent(rootPath, unit)
+	storage.EnsureSlot(rootPath, unit)
+	storage.EntryContent(rootPath, unit)
 }

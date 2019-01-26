@@ -9,6 +9,6 @@ func main() {
 
 	done := make(chan bool)
 	cfg := config.NewConfigFromParams()
-	sentry.StartSentry(cfg)
+	sentry.Start(cfg)
 	<-done
 }

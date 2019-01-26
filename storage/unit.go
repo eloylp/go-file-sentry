@@ -15,31 +15,31 @@ func NewStorageUnit(diffContent []byte, file *file.File) *StorageUnit {
 	return &StorageUnit{diffContent: diffContent, file: file}
 }
 
-func (unit *StorageUnit) GetDiffContent() []byte {
+func (unit *StorageUnit) DiffContent() []byte {
 	return unit.diffContent
 }
 
-func (unit *StorageUnit) GetFile() *file.File {
+func (unit *StorageUnit) File() *file.File {
 	return unit.file
 }
 
-func (unit *StorageUnit) GetFileFQDN() string {
-	return unit.GetFile().FQDN()
+func (unit *StorageUnit) FileFQDN() string {
+	return unit.File().FQDN()
 }
 
-func (unit *StorageUnit) GetFileName() string {
-	return unit.GetFile().Name()
+func (unit *StorageUnit) FileName() string {
+	return unit.File().Name()
 }
 
-func (unit *StorageUnit) GetFileData() []byte {
-	return unit.GetFile().Data()
+func (unit *StorageUnit) FileData() []byte {
+	return unit.File().Data()
 }
 
 func (unit *StorageUnit) GetFilePath() string {
-	return unit.GetFile().Path()
+	return unit.File().Path()
 }
 
-func (unit *StorageUnit) CalculateName() string {
+func (unit *StorageUnit) Name() string {
 	hasher := md5.New()
 	hasher.Write([]byte(unit.GetFilePath()))
 	containerName := hex.EncodeToString(hasher.Sum(nil))

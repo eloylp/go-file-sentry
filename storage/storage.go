@@ -12,8 +12,8 @@ import (
 
 const diffExtension string = ".diff"
 
-func AddNewEntry(rootPath string, storageUnitContent *StorageUnit) {
-	destination := filepath.Join(rootPath, storageUnitContent.CalculateName(), storageUnitContent.GetFileFQDN())
+func EnsureSlot(rootPath string, storageUnitContent *StorageUnit) {
+	destination := filepath.Join(rootPath, storageUnitContent.Name(), storageUnitContent.FileFQDN())
 	err := os.MkdirAll(destination, 0755)
 	failIfError(err)
 }
@@ -24,15 +24,15 @@ func failIfError(err error) {
 	}
 }
 
-func AddEntryContent(rootPath string, storageUnit *StorageUnit) {
+func EntryContent(rootPath string, storageUnit *StorageUnit) {
 	const defaultPerms os.FileMode = 0666
 
-	fileName := storageUnit.GetFileName()
-	containerName := storageUnit.CalculateName()
-	targetFilePath := filepath.Join(rootPath, containerName, storageUnit.GetFileFQDN(), fileName)
-	err := ioutil.WriteFile(targetFilePath, storageUnit.GetFileData(), defaultPerms)
+	fileName := storageUnit.FileName()
+	containerName := storageUnit.Name()
+	targetFilePath := filepath.Join(rootPath, containerName, storageUnit.FileFQDN(), fileName)
+	err := ioutil.WriteFile(targetFilePath, storageUnit.FileData(), defaultPerms)
 	failIfError(err)
-	err = ioutil.WriteFile(targetFilePath+diffExtension, storageUnit.GetDiffContent(), defaultPerms)
+	err = ioutil.WriteFile(targetFilePath+diffExtension, storageUnit.DiffContent(), defaultPerms)
 	failIfError(err)
 }
 
@@ -40,27 +40,27 @@ type VersionNotFound struct {
 	err string
 }
 
-func NewVersionNotFoundError(err string) *VersionNotFound {
-	return &VersionNotFound{err: err}
-}
-
 func (v VersionNotFound) Error() string {
 	return v.err
 }
 
-func FindLatestVersion(rootPath string, scannedFile *file.File) (storageUnit StorageUnit, err error) {
+func NewVersionNotFoundError(err string) *VersionNotFound {
+	return &VersionNotFound{err: err}
+}
 
-	scannedFileStorageUnit := StorageUnit{
+func LatestVersion(rootPath string, scannedFile *file.File) (StorageUnit, error) {
+
+	storageUnit := StorageUnit{
 		file: scannedFile,
 	}
-	fileContainerDirAbsolutePath := filepath.Join(rootPath, scannedFileStorageUnit.CalculateName())
-	storedVersions, err := ioutil.ReadDir(fileContainerDirAbsolutePath)
+	fContainerPath := filepath.Join(rootPath, storageUnit.Name())
+	storedVersions, err := ioutil.ReadDir(fContainerPath)
 
 	if storedVersions == nil {
-		return storageUnit, NewVersionNotFoundError("Theres no previous storage units.")
+		return storageUnit, NewVersionNotFoundError("There`s no previous storage units.")
 	}
 	lastVersion := calculateLastVersionReference(storedVersions)
-	fullFilePath := filepath.Join(fileContainerDirAbsolutePath, lastVersion.Name(), scannedFile.Name())
+	fullFilePath := filepath.Join(fContainerPath, lastVersion.Name(), scannedFile.Name())
 	requestedFile := file.NewFile(fullFilePath)
 	diffContent, err := ioutil.ReadFile(fullFilePath + diffExtension)
 	failIfError(err)
@@ -78,10 +78,10 @@ func calculateLastVersionReference(storedVersions []os.FileInfo) os.FileInfo {
 	var lastTime time.Time
 	var lastVersion os.FileInfo
 	for _, storedVersion := range storedVersions {
-		entryName := storedVersion.Name()
-		parts := strings.Split(entryName, containerPartsSeparator)
-		timeStampPart := parts[1]
-		parsedTime, err := time.Parse(containerTimePartLayout, timeStampPart)
+		name := storedVersion.Name()
+		parts := strings.Split(name, containerPartsSeparator)
+		timeStamp := parts[1]
+		parsedTime, err := time.Parse(containerTimePartLayout, timeStamp)
 		failIfError(err)
 		if parsedTime.After(lastTime) {
 			lastTime = parsedTime

@@ -7,11 +7,11 @@ import (
 	"github.com/eloylp/go-file-sentry/watcher"
 )
 
-func StartSentry(cfg *config.Config) {
+func Start(cfg *config.Config) {
 	for _, watchedFile := range cfg.WFiles() {
 		wFile := file.NewFile(watchedFile)
-		go watcher.WatchFile(wFile, func(file *file.File) {
-			version.MakeNewVersion(cfg.StoragePath(), file)
+		go watcher.WFile(wFile, func(file *file.File) {
+			version.NewVersion(cfg.StoragePath(), file)
 		})
 	}
 }

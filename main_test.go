@@ -20,7 +20,7 @@ func TestStartSentry(t *testing.T) {
 	cfg := config.NewConfig(
 		testRootFolder,
 		[]string{file1})
-	sentry.StartSentry(cfg)
+	sentry.Start(cfg)
 
 	time.Sleep(time.Duration(1 * time.Second))
 	_test.AppendDataToTestFile(file1, "more content")

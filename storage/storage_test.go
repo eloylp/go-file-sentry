@@ -10,17 +10,17 @@ import (
 	"testing"
 )
 
-func TestAddNewEntry(t *testing.T) {
+func TestEnsureSlot(t *testing.T) {
 
 	testFolderPath := _test.CreateTestStorageFolder()
 	defer _test.CleanTestStorageFolder(testFolderPath)
 	testFilePath := _test.WriteFileToTestFolder(testFolderPath, "test.txt", "Content")
 	sampleFile := file.NewFile(testFilePath)
 	storageUnit := storage.NewStorageUnit([]byte{}, sampleFile)
-	storage.AddNewEntry(testFolderPath, storageUnit)
+	storage.EnsureSlot(testFolderPath, storageUnit)
 	expectedFolderPath := filepath.Join(
 		testFolderPath,
-		storageUnit.CalculateName(),
+		storageUnit.Name(),
 		sampleFile.FQDN(),
 	)
 	exist, err := _test.FsExists(expectedFolderPath)
@@ -33,7 +33,7 @@ func TestAddNewEntry(t *testing.T) {
 	}
 }
 
-func TestAddEntryContent(t *testing.T) {
+func TestEntryContent(t *testing.T) {
 
 	testFolderPath := _test.CreateTestStorageFolder()
 	defer _test.CleanTestStorageFolder(testFolderPath)
@@ -53,7 +53,7 @@ func TestAddEntryContent(t *testing.T) {
 	err := os.MkdirAll(containerFolder, 0755)
 	_test.FailIfError(err)
 
-	storage.AddEntryContent(testFolderPath, storageUnit)
+	storage.EntryContent(testFolderPath, storageUnit)
 	expectedFilePath := filepath.Join(containerFolder, testFileName)
 
 	exist, _ := _test.FsExists(expectedFilePath)
@@ -75,26 +75,26 @@ func TestAddEntryContent(t *testing.T) {
 	}
 }
 
-func TestFindLatestVersion(t *testing.T) {
+func TestLatestVersion(t *testing.T) {
 
 	testFolderPath := _test.CreateFixedTestStorageFolder("TestFindLatestVersion")
 	defer _test.CleanTestStorageFolder(testFolderPath)
 	samplePath := _test.WriteFileToTestFolder(testFolderPath, "fstab", "Content C")
 	sampleFile := file.NewFile(samplePath)
 	rootPath := _test.GetTestResource("root_sample")
-	recoveredFile, err := storage.FindLatestVersion(rootPath, sampleFile)
+	recoveredFile, err := storage.LatestVersion(rootPath, sampleFile)
 	_test.FailIfError(err)
 
-	if "Content C" != string(recoveredFile.GetFileData()) {
+	if "Content C" != string(recoveredFile.FileData()) {
 		t.Fatal("Retrieved file is not the latest.")
 	}
 
-	if "+fake diff C" != string(recoveredFile.GetDiffContent()) {
+	if "+fake diff C" != string(recoveredFile.DiffContent()) {
 		t.Fatal("Retrieved file diff is not the latest.")
 	}
 }
 
-func TestFindLatestVersionNotFound(t *testing.T) {
+func TestLatestVersionNotFound(t *testing.T) {
 
 	testFolderPath := _test.CreateTestStorageFolder()
 	defer _test.CleanTestStorageFolder(testFolderPath)
@@ -102,8 +102,8 @@ func TestFindLatestVersionNotFound(t *testing.T) {
 	sampleFile := file.NewFile(samplePath)
 	rootPath := _test.CreateTestStorageFolder()
 	defer _test.CleanTestStorageFolder(rootPath)
-	_, err := storage.FindLatestVersion(rootPath, sampleFile)
-	expectedErrorMessage := "Theres no previous storage units."
+	_, err := storage.LatestVersion(rootPath, sampleFile)
+	expectedErrorMessage := "There`s no previous storage units."
 	if err.Error() != expectedErrorMessage {
 		t.Fatalf("We are expecting error '%s', got '%s'", expectedErrorMessage, err.Error())
 	}
