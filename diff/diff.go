@@ -6,7 +6,7 @@ import (
 	"log"
 )
 
-func GetDiffOfFiles(file *file.File, file2 *file.File) string {
+func DiffOfFiles(file *file.File, file2 *file.File) string {
 
 	diff := difflib.ContextDiff{
 		A:        difflib.SplitLines(string(file.Data())),

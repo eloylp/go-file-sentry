@@ -14,7 +14,7 @@ func MakeNewVersion(rootPath string, file *file.File) {
 	case *storage.VersionNotFound:
 		diffFromPrevious = ""
 	case nil:
-		diffFromPrevious = diff.GetDiffOfFiles(file, previousUnit.GetFile())
+		diffFromPrevious = diff.DiffOfFiles(file, previousUnit.GetFile())
 	default:
 		log.Fatal(err)
 	}

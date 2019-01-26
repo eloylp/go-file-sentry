@@ -13,7 +13,7 @@ func TestGetDiffOfFiles(t *testing.T) {
 	fileB := file.NewFile(_test.GetTestResource("fileB.conf"))
 	expectedDiffFile := file.NewFile(_test.GetTestResource("expected.diff"))
 
-	diffOfFiles := diff.GetDiffOfFiles(fileA, fileB)
+	diffOfFiles := diff.DiffOfFiles(fileA, fileB)
 	expectedDiffOfFiles := string(expectedDiffFile.Data())
 
 	if expectedDiffOfFiles != diffOfFiles {
