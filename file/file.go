@@ -71,7 +71,7 @@ func (file *File) calcFQDN() {
 	const sysDirNameSeparator = "-"
 	const systemDirNameDatePart = "20060102150405"
 	fileDatePart := file.time.Format(systemDirNameDatePart)
-	parts := []string{file.Sum(), fileDatePart}
+	parts := []string{fileDatePart, file.Sum()}
 	file.fqdn = strings.Join(parts, sysDirNameSeparator)
 }
 

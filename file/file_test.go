@@ -31,7 +31,7 @@ func TestNewFile(t *testing.T) {
 	if f.Sum() != expectedSum {
 		t.Errorf("Expected sum of file is %s , result was %s", expectedSum, f.Sum())
 	}
-	expectedFQDN := "3de8f8b0dc94b8c2230fab9ec0ba0506-20181112183838"
+	expectedFQDN := "20181112183838-3de8f8b0dc94b8c2230fab9ec0ba0506"
 	if f.FQDN() != expectedFQDN {
 		t.Errorf("Expected fqdn of file is %s , result was %s", expectedSum, f.FQDN())
 	}

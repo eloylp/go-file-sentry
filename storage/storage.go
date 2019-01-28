@@ -80,7 +80,7 @@ func calculateLastVersionReference(storedVersions []os.FileInfo) os.FileInfo {
 	for _, storedVersion := range storedVersions {
 		name := storedVersion.Name()
 		parts := strings.Split(name, containerPartsSeparator)
-		timeStamp := parts[1]
+		timeStamp := parts[0]
 		parsedTime, err := time.Parse(containerTimePartLayout, timeStamp)
 		failIfError(err)
 		if parsedTime.After(lastTime) {
