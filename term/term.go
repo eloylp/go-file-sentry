@@ -1,6 +1,7 @@
 package term
 
 import (
+	"log"
 	"os"
 	"os/signal"
 )
@@ -10,6 +11,7 @@ func Listen(shutdown chan bool) {
 	signal.Notify(sg, os.Interrupt)
 	go func() {
 		<-sg
+		log.Println("Gracefully ending watching ...")
 		shutdown <- true
 	}()
 }

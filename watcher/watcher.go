@@ -6,16 +6,18 @@ import (
 	"log"
 )
 
-func WFile(file *file.File, handler func(file *file.File)) {
+func WFile(wFile *file.File, handler func(file *file.File)) {
 	events := make(chan notify.EventInfo, 1)
-	err := notify.Watch(file.Path(), events, notify.InCloseWrite)
+	err := notify.Watch(wFile.Path(), events, notify.InCloseWrite)
 	if err != nil {
 		log.Fatal(err)
 	}
+	log.Printf("Starting watching file %s", wFile.Path())
 	for event := range events {
 		if event.Event() == notify.InCloseWrite {
-			file.LoadMetadata()
-			handler(file)
+			log.Printf("Changes watched in %s, handling a new version ...", wFile.Path())
+			wFile.LoadMetadata()
+			handler(wFile)
 		}
 	}
 }

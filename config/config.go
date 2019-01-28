@@ -26,7 +26,7 @@ func NewConfigFromParams() *Config {
 	var wFilesPath string
 	var storagePath string
 	flag.StringVar(&wFilesPath, "files", "", "The path to files list to watch")
-	flag.StringVar(&storagePath, "storage-path", "", "The root to the storage to store file versions")
+	flag.StringVar(&storagePath, "storage", "", "The root to the storage to store file versions")
 	flag.Parse()
 	filesWatched, err := parseWFiles(wFilesPath)
 	if err != nil {
