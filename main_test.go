@@ -13,9 +13,8 @@ import (
 func TestStartSentry(t *testing.T) {
 
 	testRootFolder := _test.CreateFixedTestStorageFolder("main_listening")
-	defer _test.CleanTestStorageFolder(testRootFolder)
 	testFileFolder := _test.CreateFixedTestStorageFolder("main_listening_files")
-	defer _test.CleanTestStorageFolder(testFileFolder)
+
 	file1 := _test.WriteFileToTestFolder(testFileFolder, "file1.txt", "A text file !")
 	cfg := config.NewConfig(
 		testRootFolder,
@@ -30,6 +29,9 @@ func TestStartSentry(t *testing.T) {
 	infos, err := ioutil.ReadDir(path.Join(testRootFolder, _test.CalculateMd5(file1)))
 	_test.FailIfError(err)
 	versions := len(infos)
+
+	_test.CleanTestStorageFolder(testRootFolder)
+	_test.CleanTestStorageFolder(testFileFolder)
 	if versions != 2 {
 		t.Fatalf("Expected versions are 2 , got %d", versions)
 	}
