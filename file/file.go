@@ -25,64 +25,64 @@ func NewFile(path string) *File {
 	return &file
 }
 
-func (file *File) LoadMetadata() {
-	file.calcTime()
-	file.calcSum()
-	file.calcFQDN()
+func (f *File) LoadMetadata() {
+	f.calcTime()
+	f.calcSum()
+	f.calcFQDN()
 }
 
-func (file *File) Sum() string {
-	return file.sum
+func (f *File) Sum() string {
+	return f.sum
 }
 
-func (file *File) calcSum() {
-	targetFile, err := os.Open(file.path)
+func (f *File) calcSum() {
+	file, err := os.Open(f.path)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer targetFile.Close()
+	defer file.Close()
 	sum := md5.New()
-	if _, err = io.Copy(sum, targetFile); err != nil {
+	if _, err = io.Copy(sum, file); err != nil {
 		log.Fatal(err)
 	}
-	sumInBytes := sum.Sum(nil)[:16]
-	sumString := hex.EncodeToString(sumInBytes)
-	file.sum = sumString
+	sumData := sum.Sum(nil)[:16]
+	sumString := hex.EncodeToString(sumData)
+	f.sum = sumString
 }
 
-func (file *File) Data() []byte {
+func (f *File) Data() []byte {
 
-	dat, err := ioutil.ReadFile(file.path)
+	dat, err := ioutil.ReadFile(f.path)
 	if err != nil {
 		log.Fatal(err)
 	}
 	return dat
 }
 
-func (file *File) Name() string {
-	return filepath.Base(file.path)
+func (f *File) Name() string {
+	return filepath.Base(f.path)
 }
 
-func (file *File) FQDN() string {
-	return file.fqdn
+func (f *File) FQDN() string {
+	return f.fqdn
 }
 
-func (file *File) calcFQDN() {
+func (f *File) calcFQDN() {
 	const sysDirNameSeparator = "-"
 	const systemDirNameDatePart = "20060102150405"
-	fileDatePart := file.time.Format(systemDirNameDatePart)
-	parts := []string{fileDatePart, file.Sum()}
-	file.fqdn = strings.Join(parts, sysDirNameSeparator)
+	fileDatePart := f.time.Format(systemDirNameDatePart)
+	parts := []string{fileDatePart, f.Sum()}
+	f.fqdn = strings.Join(parts, sysDirNameSeparator)
 }
 
-func (file *File) calcTime() {
-	readFile, err := os.Stat(file.path)
+func (f *File) calcTime() {
+	readFile, err := os.Stat(f.path)
 	if err != nil {
 		log.Fatal(err)
 	}
-	file.time = readFile.ModTime()
+	f.time = readFile.ModTime()
 }
 
-func (file *File) Path() string {
-	return file.path
+func (f *File) Path() string {
+	return f.path
 }

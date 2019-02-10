@@ -27,7 +27,7 @@ func TestStartSentry(t *testing.T) {
 	_test.AppendData(file1, "even more content")
 	time.Sleep(time.Duration(1 * time.Second))
 
-	infos, err := ioutil.ReadDir(path.Join(root, _test.CalculateMd5(file1)))
+	infos, err := ioutil.ReadDir(path.Join(root, _test.Md5(file1)))
 	_test.FailIfError(err)
 	versions := len(infos)
 

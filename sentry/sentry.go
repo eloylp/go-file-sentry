@@ -11,9 +11,9 @@ import (
 func Start(cfg *config.Config) {
 	for _, wFile := range cfg.WFiles() {
 		wFile := file.NewFile(wFile)
-		go watcher.WFile(wFile, func(file *file.File) {
-			log.Printf("Saving new version of file %s", wFile.Path())
-			version.NewVersion(cfg.StoragePath(), file)
+		go watcher.WFile(wFile, func(f *file.File) {
+			log.Printf("Saving new version of f %s", wFile.Path())
+			version.NewVersion(cfg.StoragePath(), f)
 		})
 	}
 }

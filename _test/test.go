@@ -9,18 +9,18 @@ import (
 	"path/filepath"
 )
 
-func WriteFile(testFolderPath string, name string, content string) string {
-	filePath := filepath.Join(testFolderPath, string(os.PathSeparator), name)
-	testFile, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE, 0666)
+func WriteFile(folderPath string, name string, content string) string {
+	path := filepath.Join(folderPath, string(os.PathSeparator), name)
+	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE, 0666)
 	FailIfError(err)
-	defer testFile.Close()
-	_, err = testFile.WriteString(content)
+	defer file.Close()
+	_, err = file.WriteString(content)
 	FailIfError(err)
-	return filePath
+	return path
 }
 
-func AppendData(filePath string, content string) {
-	testFile, err := os.OpenFile(filePath, os.O_WRONLY|os.O_APPEND, 0666)
+func AppendData(path string, content string) {
+	testFile, err := os.OpenFile(path, os.O_WRONLY|os.O_APPEND, 0666)
 	FailIfError(err)
 	defer testFile.Close()
 	_, err = testFile.WriteString(content)
@@ -38,15 +38,15 @@ const testFolderPrefix string = "go_file_sentry_test_"
 
 func CreateTestStorageFolder() string {
 	uuidGen, _ := uuid.NewV4()
-	testFolder := filepath.Join(string(os.PathSeparator), testRootFolderName, testFolderPrefix+uuidGen.String())
-	_ = os.Mkdir(testFolder, 0755)
-	return testFolder
+	folder := filepath.Join(string(os.PathSeparator), testRootFolderName, testFolderPrefix+uuidGen.String())
+	_ = os.Mkdir(folder, 0755)
+	return folder
 }
 
 func CreateFixedTestFolder(suffix string) string {
-	testFolder := filepath.Join(string(os.PathSeparator), testRootFolderName, testFolderPrefix+suffix)
-	_ = os.Mkdir(testFolder, 0755)
-	return testFolder
+	folder := filepath.Join(string(os.PathSeparator), testRootFolderName, testFolderPrefix+suffix)
+	_ = os.Mkdir(folder, 0755)
+	return folder
 }
 
 func CleanFolder(path string) {
@@ -54,7 +54,7 @@ func CleanFolder(path string) {
 	FailIfError(err)
 }
 
-func CalculateMd5(input string) string {
+func Md5(input string) string {
 	hasher := md5.New()
 	hasher.Write([]byte(input))
 	containerName := hex.EncodeToString(hasher.Sum(nil))
@@ -72,7 +72,7 @@ func FsExists(path string) (bool, error) {
 	return true, err
 }
 
-func GetTestResource(resourceName string) string {
+func GetTestResource(name string) string {
 	const testResourceDir = "test"
-	return filepath.Join(testResourceDir, resourceName)
+	return filepath.Join(testResourceDir, name)
 }

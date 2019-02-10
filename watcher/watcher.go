@@ -14,6 +14,7 @@ var wEvents = []fsnotify.Op{
 
 func WFile(wFile *file.File, handler func(file *file.File)) {
 	watcher, err := fsnotify.NewWatcher()
+	defer watcher.Close()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -28,7 +29,7 @@ func WFile(wFile *file.File, handler func(file *file.File)) {
 			if !ok {
 				return
 			}
-			if isCEvent(event) {
+			if changedEvent(event) {
 				log.Printf("Changes watched in %s, handling a new version ...", wFile.Path())
 				wFile.LoadMetadata()
 				handler(wFile)
@@ -47,7 +48,7 @@ func WFile(wFile *file.File, handler func(file *file.File)) {
 	}
 }
 
-func isCEvent(event fsnotify.Event) bool {
+func changedEvent(event fsnotify.Event) bool {
 	for _, op := range wEvents {
 		if event.Op&op == op {
 			return true

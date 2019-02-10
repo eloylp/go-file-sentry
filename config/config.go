@@ -12,11 +12,11 @@ type Config struct {
 	wFiles      []string
 }
 
-func (v *Config) WFiles() []string {
-	return v.wFiles
+func (c *Config) WFiles() []string {
+	return c.wFiles
 }
-func (v *Config) StoragePath() string {
-	return v.storagePath
+func (c *Config) StoragePath() string {
+	return c.storagePath
 }
 func NewConfig(storagePath string, watchedFiles []string) *Config {
 	return &Config{storagePath: storagePath, wFiles: watchedFiles}

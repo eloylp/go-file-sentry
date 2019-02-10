@@ -12,14 +12,14 @@ import (
 
 func TestEnsureSlot(t *testing.T) {
 
-	testFolderPath := _test.CreateTestStorageFolder()
-	defer _test.CleanFolder(testFolderPath)
-	testFilePath := _test.WriteFile(testFolderPath, "test.txt", "Content")
-	sampleFile := file.NewFile(testFilePath)
+	folderPath := _test.CreateTestStorageFolder()
+	defer _test.CleanFolder(folderPath)
+	filePath := _test.WriteFile(folderPath, "test.txt", "Content")
+	sampleFile := file.NewFile(filePath)
 	storageUnit := storage.NewStorageUnit([]byte{}, sampleFile)
-	storage.EnsureSlot(testFolderPath, storageUnit)
+	storage.EnsureSlot(folderPath, storageUnit)
 	expectedFolderPath := filepath.Join(
-		testFolderPath,
+		folderPath,
 		storageUnit.Name(),
 		sampleFile.FQDN(),
 	)
@@ -35,26 +35,26 @@ func TestEnsureSlot(t *testing.T) {
 
 func TestEntryContent(t *testing.T) {
 
-	testFolderPath := _test.CreateTestStorageFolder()
-	defer _test.CleanFolder(testFolderPath)
-	testFileName := "fileA"
-	testFileContent := "Content A	"
-	filePath := _test.WriteFile(testFolderPath, testFileName, testFileContent)
+	folderPath := _test.CreateTestStorageFolder()
+	defer _test.CleanFolder(folderPath)
+	fileName := "fileA"
+	fileContent := "Content A	"
+	filePath := _test.WriteFile(folderPath, fileName, fileContent)
 
 	sampleFile := file.NewFile(filePath)
 	sampleFileDiffContent := []byte("Differential patch")
 	storageUnit := storage.NewStorageUnit(sampleFileDiffContent, sampleFile)
-	containerName := _test.CalculateMd5(filePath)
+	containerName := _test.Md5(filePath)
 	containerFolder := filepath.Join(
-		testFolderPath,
+		folderPath,
 		containerName,
 		sampleFile.FQDN())
 
 	err := os.MkdirAll(containerFolder, 0755)
 	_test.FailIfError(err)
 
-	storage.EntryContent(testFolderPath, storageUnit)
-	expectedFilePath := filepath.Join(containerFolder, testFileName)
+	storage.EntryContent(folderPath, storageUnit)
+	expectedFilePath := filepath.Join(containerFolder, fileName)
 
 	exist, _ := _test.FsExists(expectedFilePath)
 	if !exist {
@@ -77,9 +77,9 @@ func TestEntryContent(t *testing.T) {
 
 func TestLatestVersion(t *testing.T) {
 
-	testFolderPath := _test.CreateFixedTestFolder("TestFindLatestVersion")
-	defer _test.CleanFolder(testFolderPath)
-	samplePath := _test.WriteFile(testFolderPath, "fstab", "Content C")
+	folderPath := _test.CreateFixedTestFolder("TestFindLatestVersion")
+	defer _test.CleanFolder(folderPath)
+	samplePath := _test.WriteFile(folderPath, "fstab", "Content C")
 	sampleFile := file.NewFile(samplePath)
 	rootPath := _test.GetTestResource("root_sample")
 	recoveredFile, err := storage.LatestVersion(rootPath, sampleFile)
@@ -96,9 +96,9 @@ func TestLatestVersion(t *testing.T) {
 
 func TestLatestVersionNotFound(t *testing.T) {
 
-	testFolderPath := _test.CreateTestStorageFolder()
-	defer _test.CleanFolder(testFolderPath)
-	samplePath := _test.WriteFile(testFolderPath, "fstab", "Content C")
+	folderPath := _test.CreateTestStorageFolder()
+	defer _test.CleanFolder(folderPath)
+	samplePath := _test.WriteFile(folderPath, "fstab", "Content C")
 	sampleFile := file.NewFile(samplePath)
 	rootPath := _test.CreateTestStorageFolder()
 	defer _test.CleanFolder(rootPath)

@@ -50,7 +50,7 @@ func assertDiffs(fileDiffContent []byte, expectedFileDiffContent []byte, t *test
 func calculateExpectedContainerPath(testStorageFolder string, testConfFile *file.File) string {
 	return filepath.Join(
 		testStorageFolder,
-		_test.CalculateMd5(testConfFile.Path()),
+		_test.Md5(testConfFile.Path()),
 		testConfFile.FQDN(),
 	)
 }

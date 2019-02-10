@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"time"
 )
@@ -59,7 +60,7 @@ func LatestVersion(rootPath string, scannedFile *file.File) (StorageUnit, error)
 	if storedVersions == nil {
 		return storageUnit, NewVersionNotFoundError("There`s no previous storage units.")
 	}
-	lastVersion := calculateLastVersionReference(storedVersions)
+	lastVersion := lastVersionReference(storedVersions)
 	fullFilePath := filepath.Join(fContainerPath, lastVersion.Name(), scannedFile.Name())
 	requestedFile := file.NewFile(fullFilePath)
 	diffContent, err := ioutil.ReadFile(fullFilePath + diffExtension)
@@ -71,22 +72,20 @@ func LatestVersion(rootPath string, scannedFile *file.File) (StorageUnit, error)
 	return storageUnit, err
 }
 
-func calculateLastVersionReference(storedVersions []os.FileInfo) os.FileInfo {
-	const containerPartsSeparator string = "-"
-	const containerTimePartLayout = "20060102150405"
+func lastVersionReference(storedVersions []os.FileInfo) os.FileInfo {
+	sort.SliceStable(storedVersions, func(i, j int) bool {
+		return parseTime(storedVersions[i]).Before(parseTime(storedVersions[j]))
+	})
+	return storedVersions[len(storedVersions)-1]
+}
 
-	var lastTime time.Time
-	var lastVersion os.FileInfo
-	for _, storedVersion := range storedVersions {
-		name := storedVersion.Name()
-		parts := strings.Split(name, containerPartsSeparator)
-		timeStamp := parts[0]
-		parsedTime, err := time.Parse(containerTimePartLayout, timeStamp)
-		failIfError(err)
-		if parsedTime.After(lastTime) {
-			lastTime = parsedTime
-			lastVersion = storedVersion
-		}
-	}
-	return lastVersion
+func parseTime(storedVersion os.FileInfo) time.Time {
+	const partsSeparator string = "-"
+	const timePartLayout string = "20060102150405"
+	name := storedVersion.Name()
+	parts := strings.Split(name, partsSeparator)
+	timeStamp := parts[0]
+	parsedTime, err := time.Parse(timePartLayout, timeStamp)
+	failIfError(err)
+	return parsedTime
 }
