@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 )
 
-func WriteFileToTestFolder(testFolderPath string, name string, content string) string {
+func WriteFile(testFolderPath string, name string, content string) string {
 	filePath := filepath.Join(testFolderPath, string(os.PathSeparator), name)
 	testFile, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE, 0666)
 	FailIfError(err)
@@ -19,7 +19,7 @@ func WriteFileToTestFolder(testFolderPath string, name string, content string) s
 	return filePath
 }
 
-func AppendDataToTestFile(filePath string, content string) {
+func AppendData(filePath string, content string) {
 	testFile, err := os.OpenFile(filePath, os.O_WRONLY|os.O_APPEND, 0666)
 	FailIfError(err)
 	defer testFile.Close()
@@ -43,13 +43,13 @@ func CreateTestStorageFolder() string {
 	return testFolder
 }
 
-func CreateFixedTestStorageFolder(suffix string) string {
+func CreateFixedTestFolder(suffix string) string {
 	testFolder := filepath.Join(string(os.PathSeparator), testRootFolderName, testFolderPrefix+suffix)
 	_ = os.Mkdir(testFolder, 0755)
 	return testFolder
 }
 
-func CleanTestStorageFolder(path string) {
+func CleanFolder(path string) {
 	err := os.RemoveAll(path)
 	FailIfError(err)
 }

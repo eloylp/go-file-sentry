@@ -13,8 +13,8 @@ import (
 func TestEnsureSlot(t *testing.T) {
 
 	testFolderPath := _test.CreateTestStorageFolder()
-	defer _test.CleanTestStorageFolder(testFolderPath)
-	testFilePath := _test.WriteFileToTestFolder(testFolderPath, "test.txt", "Content")
+	defer _test.CleanFolder(testFolderPath)
+	testFilePath := _test.WriteFile(testFolderPath, "test.txt", "Content")
 	sampleFile := file.NewFile(testFilePath)
 	storageUnit := storage.NewStorageUnit([]byte{}, sampleFile)
 	storage.EnsureSlot(testFolderPath, storageUnit)
@@ -36,10 +36,10 @@ func TestEnsureSlot(t *testing.T) {
 func TestEntryContent(t *testing.T) {
 
 	testFolderPath := _test.CreateTestStorageFolder()
-	defer _test.CleanTestStorageFolder(testFolderPath)
+	defer _test.CleanFolder(testFolderPath)
 	testFileName := "fileA"
 	testFileContent := "Content A	"
-	filePath := _test.WriteFileToTestFolder(testFolderPath, testFileName, testFileContent)
+	filePath := _test.WriteFile(testFolderPath, testFileName, testFileContent)
 
 	sampleFile := file.NewFile(filePath)
 	sampleFileDiffContent := []byte("Differential patch")
@@ -77,9 +77,9 @@ func TestEntryContent(t *testing.T) {
 
 func TestLatestVersion(t *testing.T) {
 
-	testFolderPath := _test.CreateFixedTestStorageFolder("TestFindLatestVersion")
-	defer _test.CleanTestStorageFolder(testFolderPath)
-	samplePath := _test.WriteFileToTestFolder(testFolderPath, "fstab", "Content C")
+	testFolderPath := _test.CreateFixedTestFolder("TestFindLatestVersion")
+	defer _test.CleanFolder(testFolderPath)
+	samplePath := _test.WriteFile(testFolderPath, "fstab", "Content C")
 	sampleFile := file.NewFile(samplePath)
 	rootPath := _test.GetTestResource("root_sample")
 	recoveredFile, err := storage.LatestVersion(rootPath, sampleFile)
@@ -97,11 +97,11 @@ func TestLatestVersion(t *testing.T) {
 func TestLatestVersionNotFound(t *testing.T) {
 
 	testFolderPath := _test.CreateTestStorageFolder()
-	defer _test.CleanTestStorageFolder(testFolderPath)
-	samplePath := _test.WriteFileToTestFolder(testFolderPath, "fstab", "Content C")
+	defer _test.CleanFolder(testFolderPath)
+	samplePath := _test.WriteFile(testFolderPath, "fstab", "Content C")
 	sampleFile := file.NewFile(samplePath)
 	rootPath := _test.CreateTestStorageFolder()
-	defer _test.CleanTestStorageFolder(rootPath)
+	defer _test.CleanFolder(rootPath)
 	_, err := storage.LatestVersion(rootPath, sampleFile)
 	expectedErrorMessage := "There`s no previous storage units."
 	if err.Error() != expectedErrorMessage {

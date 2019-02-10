@@ -11,13 +11,13 @@ import (
 
 func TestMakeNewVersion(t *testing.T) {
 
-	testFolder := _test.CreateFixedTestStorageFolder("version_make_new")
-	defer _test.CleanTestStorageFolder(testFolder)
-	testStorageFolder := _test.CreateFixedTestStorageFolder("version_make_new_storage")
-	defer _test.CleanTestStorageFolder(testStorageFolder)
+	testFolder := _test.CreateFixedTestFolder("version_make_new")
+	defer _test.CleanFolder(testFolder)
+	testStorageFolder := _test.CreateFixedTestFolder("version_make_new_storage")
+	defer _test.CleanFolder(testStorageFolder)
 
 	expectedFileContent := "this.is.the.config=true"
-	testConfFilePath := _test.WriteFileToTestFolder(testFolder, "daemon.config", expectedFileContent)
+	testConfFilePath := _test.WriteFile(testFolder, "daemon.config", expectedFileContent)
 	testConfFile := file.NewFile(testConfFilePath)
 	version.NewVersion(testStorageFolder, testConfFile)
 
@@ -57,16 +57,16 @@ func calculateExpectedContainerPath(testStorageFolder string, testConfFile *file
 
 func TestMakeSecondVersion(t *testing.T) {
 
-	testFolder := _test.CreateFixedTestStorageFolder("version_make_new_2")
-	defer _test.CleanTestStorageFolder(testFolder)
-	testStorageFolder := _test.CreateFixedTestStorageFolder("version_make_new_storage_2")
-	defer _test.CleanTestStorageFolder(testStorageFolder)
+	testFolder := _test.CreateFixedTestFolder("version_make_new_2")
+	defer _test.CleanFolder(testFolder)
+	testStorageFolder := _test.CreateFixedTestFolder("version_make_new_storage_2")
+	defer _test.CleanFolder(testStorageFolder)
 
-	testConfFilePath := _test.WriteFileToTestFolder(testFolder, "daemon.config", "this.is.the.config=true")
+	testConfFilePath := _test.WriteFile(testFolder, "daemon.config", "this.is.the.config=true")
 	testConfFile := file.NewFile(testConfFilePath)
 	version.NewVersion(testStorageFolder, testConfFile)
 	expectedFileContent := "this.is.the.config=false"
-	testConfFile2Path := _test.WriteFileToTestFolder(testFolder, "daemon.config", expectedFileContent)
+	testConfFile2Path := _test.WriteFile(testFolder, "daemon.config", expectedFileContent)
 	testConfFile2 := file.NewFile(testConfFile2Path)
 
 	version.NewVersion(testStorageFolder, testConfFile2)
