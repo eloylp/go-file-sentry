@@ -2,38 +2,54 @@ package watcher
 
 import (
 	"github.com/eloylp/go-file-sentry/file"
-	"github.com/rjeczalik/notify"
+	"github.com/fsnotify/fsnotify"
 	"log"
 )
 
-var wEvents = []notify.Event{
-	notify.InCloseWrite,
-	notify.InModify,
-	notify.Write,
-	notify.Remove,
+var wEvents = []fsnotify.Op{
+	fsnotify.Write,
+	fsnotify.Create,
+	fsnotify.Remove,
 }
 
 func WFile(wFile *file.File, handler func(file *file.File)) {
-	events := make(chan notify.EventInfo)
-	err := notify.Watch(wFile.Path(), events, notify.All)
+	watcher, err := fsnotify.NewWatcher()
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = watcher.Add(wFile.Path())
 	if err != nil {
 		log.Fatal(err)
 	}
 	log.Printf("Starting watching file %s", wFile.Path())
-	for event := range events {
-		if isWEvent(event) {
-			log.Printf("Changes watched in %s, handling a new version ...", wFile.Path())
-			wFile.LoadMetadata()
-			handler(wFile)
-		} else {
-			log.Printf("Ignoring event %s for file %s", event.Event(), wFile.Path())
+	for {
+		select {
+		case event, ok := <-watcher.Events:
+			if !ok {
+				return
+			}
+			if isCEvent(event) {
+				log.Printf("Changes watched in %s, handling a new version ...", wFile.Path())
+				wFile.LoadMetadata()
+				handler(wFile)
+			} else if event.Op&fsnotify.Rename == fsnotify.Rename {
+				log.Printf("Adding new inode watcher for file %s due to inode change", wFile.Path())
+				_ = watcher.Add(wFile.Path())
+			} else {
+				log.Printf("Ignoring event %s", event.String())
+			}
+		case err, ok := <-watcher.Errors:
+			if !ok {
+				return
+			}
+			log.Printf("Error in watcher for file %s: %v", wFile.Path(), err)
 		}
 	}
 }
 
-func isWEvent(event notify.EventInfo) bool {
-	for _, wEvent := range wEvents {
-		if event.Event() == wEvent {
+func isCEvent(event fsnotify.Event) bool {
+	for _, op := range wEvents {
+		if event.Op&op == op {
 			return true
 		}
 	}
