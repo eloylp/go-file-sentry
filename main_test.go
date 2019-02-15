@@ -37,3 +37,32 @@ func TestStartSentry(t *testing.T) {
 		t.Fatalf("Expected versions are 2 , got %d", versions)
 	}
 }
+
+func BenchmarkStartSentry(b *testing.B) {
+
+	root := _test.CreateFixedTestFolder("main_listening")
+	fileFolder := _test.CreateFixedTestFolder("main_listening_files")
+	file := _test.WriteFile(fileFolder, "file1.txt", "A text file !")
+
+	cfg := config.NewConfig(
+		root,
+		[]string{file})
+
+	sentry.Start(cfg)
+	time.Sleep(time.Duration(3 * time.Second))
+
+	expectedVersions := 0
+	for n := 0; n < 10; n++ {
+		_test.AppendData(file, "more content")
+		time.Sleep(time.Duration(1 * time.Second))
+		expectedVersions++
+	}
+	infos, err := ioutil.ReadDir(path.Join(root, _test.Md5(file)))
+	_test.FailIfError(err)
+	versions := len(infos)
+	_test.CleanFolder(root)
+	_test.CleanFolder(fileFolder)
+	if versions != expectedVersions {
+		b.Fatalf("Expected versions are %d , got %d", expectedVersions, versions)
+	}
+}
