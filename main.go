@@ -2,16 +2,25 @@ package main
 
 import (
 	"github.com/eloylp/go-file-sentry/config"
+	"github.com/eloylp/go-file-sentry/program"
 	"github.com/eloylp/go-file-sentry/sentry"
 	"github.com/eloylp/go-file-sentry/term"
-	"log"
+	"sync"
 )
 
 func main() {
-	shutdown := make(chan bool)
-	term.Listen(shutdown)
+
+	mainShutdown := make(chan struct{})
+	term.Listen(mainShutdown)
 	cfg := config.NewConfigFromParams()
-	sentry.Start(cfg)
-	log.Println("Starting watching of files changes ...")
-	<-shutdown
+	wg := new(sync.WaitGroup)
+	watchers := sentry.Watchers(cfg, wg)
+	p := program.Program{
+		Watchers: watchers,
+		Config:   cfg,
+		Wg:       wg,
+	}
+	p.Start()
+	<-mainShutdown
+	p.Shutdown()
 }

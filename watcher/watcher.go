@@ -1,9 +1,10 @@
 package watcher
 
 import (
+	"fmt"
 	"github.com/eloylp/go-file-sentry/file"
 	"github.com/fsnotify/fsnotify"
-	"log"
+	"sync"
 )
 
 var wEvents = []fsnotify.Op{
@@ -12,40 +13,71 @@ var wEvents = []fsnotify.Op{
 	fsnotify.Remove,
 }
 
-func WFile(wFile *file.File, handler func(file *file.File)) {
+type Watcher struct {
+	Shutdown chan struct{}
+	Err      chan error
+	Infos    chan string
+	File     *file.File
+	Wg       *sync.WaitGroup
+}
+
+func NewWatcher(file *file.File, wg *sync.WaitGroup) *Watcher {
+	w := &Watcher{File: file}
+	w.Shutdown = make(chan struct{})
+	w.Infos = make(chan string)
+	w.Err = make(chan error)
+	w.Wg = wg
+	return w
+}
+
+func (w *Watcher) WFile(handler func(file *file.File)) {
+	w.Wg.Add(1)
+	defer close(w.Infos)
+	defer close(w.Err)
 	watcher, err := fsnotify.NewWatcher()
 	defer watcher.Close()
 	if err != nil {
-		log.Fatal(err)
+		w.Err <- err
+		return
 	}
-	err = watcher.Add(wFile.Path())
+	err = watcher.Add(w.File.Path())
 	if err != nil {
-		log.Fatal(err)
+		w.Err <- err
+		return
 	}
-	log.Printf("Starting watching file %s", wFile.Path())
+	w.Infos <- fmt.Sprintf("Starting watching file %s", w.File.Path())
+
+wLoop:
 	for {
 		select {
+		case <-w.Shutdown:
+			w.Infos <- fmt.Sprintf("Shutting down watcher  of file %s", w.File.Path())
+			break wLoop
 		case event, ok := <-watcher.Events:
 			if !ok {
 				return
 			}
 			if changedEvent(event) {
-				log.Printf("Changes watched in %s, handling a new version ...", wFile.Path())
-				wFile.LoadMetadata()
-				handler(wFile)
+				w.Infos <- fmt.Sprintf("Changes watched in %s, handling a new version ...", w.File.Path())
+				w.File.LoadMetadata()
+				handler(w.File)
 			} else if event.Op&fsnotify.Rename == fsnotify.Rename {
-				log.Printf("Adding new inode watcher for file %s due to inode change", wFile.Path())
-				_ = watcher.Add(wFile.Path())
+				w.Infos <- fmt.Sprintf("Adding new inode watcher for file %s due to inode change", w.File.Path())
+				err = watcher.Add(w.File.Path())
+				if err != nil {
+					w.Err <- err
+				}
 			} else {
-				log.Printf("Ignoring event %s", event.String())
+				w.Infos <- fmt.Sprintf("Ignoring event %s", event.String())
 			}
 		case err, ok := <-watcher.Errors:
 			if !ok {
 				return
 			}
-			log.Printf("Error in watcher for file %s: %v", wFile.Path(), err)
+			w.Err <- err
 		}
 	}
+	w.Wg.Done()
 }
 
 func changedEvent(event fsnotify.Event) bool {

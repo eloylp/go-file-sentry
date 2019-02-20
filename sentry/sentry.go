@@ -3,17 +3,16 @@ package sentry
 import (
 	"github.com/eloylp/go-file-sentry/config"
 	"github.com/eloylp/go-file-sentry/file"
-	"github.com/eloylp/go-file-sentry/version"
 	"github.com/eloylp/go-file-sentry/watcher"
-	"log"
+	"sync"
 )
 
-func Start(cfg *config.Config) {
+func Watchers(cfg *config.Config, wg *sync.WaitGroup) []*watcher.Watcher {
+
+	var watchers []*watcher.Watcher
 	for _, wFile := range cfg.WFiles() {
 		wFile := file.NewFile(wFile)
-		go watcher.WFile(wFile, func(f *file.File) {
-			log.Printf("Saving new version of file %s", wFile.Path())
-			version.NewVersion(cfg.StoragePath(), f)
-		})
+		watchers = append(watchers, watcher.NewWatcher(wFile, wg))
 	}
+	return watchers
 }
