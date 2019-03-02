@@ -4,7 +4,6 @@ import (
 	"github.com/eloylp/go-file-sentry/config"
 	"github.com/eloylp/go-file-sentry/file"
 	"github.com/eloylp/go-file-sentry/version"
-	"github.com/eloylp/go-file-sentry/watcher"
 	"log"
 	"sync"
 )
@@ -15,9 +14,16 @@ type ApiServer interface {
 	Errors() chan error
 }
 
+type Watcher interface {
+	WFile(handler func(f *file.File))
+	Shutdown()
+	Err() chan error
+	Info() chan string
+}
+
 type Program struct {
 	Api      ApiServer
-	Watchers []*watcher.Watcher
+	Watchers []Watcher
 	Config   *config.Config
 	Wg       *sync.WaitGroup
 }
@@ -25,7 +31,7 @@ type Program struct {
 func (p *Program) Shutdown() {
 	p.Api.Shutdown()
 	for _, w := range p.Watchers {
-		w.Shutdown <- struct{}{}
+		w.Shutdown()
 	}
 	p.Wg.Wait()
 }
@@ -56,13 +62,13 @@ func (p *Program) startLogging() {
 		}
 	}(p.Api)
 	for _, w := range p.Watchers {
-		go func(w *watcher.Watcher) {
-			for err := range w.Err {
+		go func(w Watcher) {
+			for err := range w.Err() {
 				log.Print(err)
 			}
 		}(w)
-		go func(w *watcher.Watcher) {
-			for info := range w.Infos {
+		go func(w Watcher) {
+			for info := range w.Info() {
 				log.Print(info)
 			}
 		}(w)
