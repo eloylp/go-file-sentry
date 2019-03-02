@@ -46,7 +46,7 @@ func (w *Watcher) WFile(handler func(file *file.File)) {
 		return
 	}
 	w.Infos <- fmt.Sprintf("Starting watching file %s", w.File.Path())
-
+	//// TODO EVALUATE WATCHER CLOSE INSTEAD OF THIS.
 wLoop:
 	for {
 		select {

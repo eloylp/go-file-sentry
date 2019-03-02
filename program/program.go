@@ -9,13 +9,21 @@ import (
 	"sync"
 )
 
+type ApiServer interface {
+	StartServer()
+	Shutdown()
+	Errors() chan error
+}
+
 type Program struct {
+	Api      ApiServer
 	Watchers []*watcher.Watcher
 	Config   *config.Config
 	Wg       *sync.WaitGroup
 }
 
 func (p *Program) Shutdown() {
+	p.Api.Shutdown()
 	for _, w := range p.Watchers {
 		w.Shutdown <- struct{}{}
 	}
@@ -23,8 +31,13 @@ func (p *Program) Shutdown() {
 }
 
 func (p *Program) Start() {
+	p.startApi()
 	p.startWatching()
 	p.startLogging()
+}
+
+func (p *Program) startApi() {
+	go p.Api.StartServer()
 }
 
 func (p *Program) startWatching() {
@@ -37,6 +50,11 @@ func (p *Program) startWatching() {
 }
 
 func (p *Program) startLogging() {
+	go func(server ApiServer) {
+		for err := range server.Errors() {
+			log.Print(err)
+		}
+	}(p.Api)
 	for _, w := range p.Watchers {
 		go func(w *watcher.Watcher) {
 			for err := range w.Err {

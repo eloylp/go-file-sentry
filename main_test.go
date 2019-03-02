@@ -3,7 +3,7 @@ package main_test
 import (
 	"github.com/eloylp/go-file-sentry/_test"
 	"github.com/eloylp/go-file-sentry/config"
-	"github.com/eloylp/go-file-sentry/sentry"
+	"github.com/eloylp/go-file-sentry/factory"
 	"io/ioutil"
 	"path"
 	"sync"
@@ -20,10 +20,11 @@ func TestStartSentry(t *testing.T) {
 	file1 := _test.WriteFile(fileFolder, "file1.txt", "A text file !")
 	cfg := config.NewConfig(
 		root,
-		[]string{file1})
+		[]string{file1},
+		"")
 
 	wg := new(sync.WaitGroup)
-	sentry.Watchers(cfg, wg)
+	factory.Watchers(cfg, wg)
 
 	time.Sleep(time.Duration(1 * time.Second))
 	_test.AppendData(file1, "more content")
@@ -53,10 +54,10 @@ func BenchmarkStartSentry(b *testing.B) {
 
 	cfg := config.NewConfig(
 		root,
-		[]string{file})
+		[]string{file}, "")
 	wg := new(sync.WaitGroup)
 
-	sentry.Watchers(cfg, wg)
+	factory.Watchers(cfg, wg)
 	time.Sleep(time.Duration(3 * time.Second))
 
 	expectedVersions := 0

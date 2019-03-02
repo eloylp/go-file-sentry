@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-func (a *ApiServer) statusHandler() http.HandlerFunc {
+func (a *apiServer) statusHandler() http.HandlerFunc {
 
 	type Response struct {
 		Status       string   `json:"status"`

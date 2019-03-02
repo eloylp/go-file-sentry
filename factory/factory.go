@@ -1,4 +1,4 @@
-package sentry
+package factory
 
 import (
 	"github.com/eloylp/go-file-sentry/config"

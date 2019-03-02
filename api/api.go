@@ -2,53 +2,64 @@ package api
 
 import (
 	"context"
+	"log"
 	"net"
 	"net/http"
+	"sync"
 )
 
-type ApiServer struct {
-	Address  string
-	Shutdown chan struct{}
-	server   *http.Server
-	Ctx      context.Context
-	Error    chan error
+type apiServer struct {
+	address string
+	server  *http.Server
+	errors  chan error
+	wg      *sync.WaitGroup
 }
 
-func (a *ApiServer) StartServer() {
+func (a *apiServer) Errors() chan error {
+	return a.errors
+}
 
+func NewApiServer(address string, wg *sync.WaitGroup) *apiServer {
+	return &apiServer{
+		address: address,
+		errors:  make(chan error),
+		wg:      wg,
+	}
+}
+
+func (a *apiServer) StartServer() {
 	a.server = &http.Server{
 		Handler: a.router(),
 	}
-	unixListener, err := net.Listen("unix", a.Address)
+	unixListener, err := net.Listen("unix", a.address)
 	if err != nil {
-		a.Error <- err
-		return
+		log.Fatal(err)
+
 	}
-	go a.handleShutdown()
+	a.wg.Add(1)
 	err = a.server.Serve(unixListener)
+	a.wg.Done()
 	if err != nil {
-		a.Error <- err
-		return
+		a.errors <- err
 	}
 }
 
-func (a *ApiServer) router() *http.ServeMux {
+func (a *apiServer) Shutdown() {
+	err := a.server.Shutdown(context.Background())
+	if err != nil {
+		a.errors <- err
+	}
+}
+
+func (a *apiServer) router() *http.ServeMux {
 	router := http.NewServeMux()
 	router.Handle("/status", a.statusHandler())
 	return router
 }
 
-func (a *ApiServer) handleShutdown() {
-	<-a.Shutdown
-	err := a.server.Shutdown(a.Ctx)
-	if err != nil {
-		a.Error <- err
-	}
-}
-
-func (a *ApiServer) writeResponse(w http.ResponseWriter, b []byte) {
+func (a *apiServer) writeResponse(w http.ResponseWriter, b []byte) {
 	_, err := w.Write(b)
 	if err != nil {
-		a.Error <- err
+		a.errors <- err
 	}
 }
