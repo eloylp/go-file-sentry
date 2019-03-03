@@ -69,7 +69,7 @@ wLoop:
 			if !ok {
 				return
 			}
-			if changedEvent(event) {
+			if w.changedEvent(event) {
 				w.info <- fmt.Sprintf("Changes watched in %s, handling a new version ...", w.file.Path())
 				w.file.LoadMetadata()
 				handler(w.file)
@@ -92,7 +92,7 @@ wLoop:
 	w.wg.Done()
 }
 
-func changedEvent(event fsnotify.Event) bool {
+func (w *Watcher) changedEvent(event fsnotify.Event) bool {
 	for _, op := range wEvents {
 		if event.Op&op == op {
 			return true
