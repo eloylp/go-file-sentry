@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/eloylp/go-file-sentry/api"
 	"github.com/eloylp/go-file-sentry/config"
 	"github.com/eloylp/go-file-sentry/factory"
 	"github.com/eloylp/go-file-sentry/program"
 	"github.com/eloylp/go-file-sentry/term"
+	"github.com/eloylp/go-file-sentry/www"
 	"sync"
 )
 
@@ -15,7 +15,7 @@ func main() {
 	term.Listen(mainShutdown)
 	cfg := config.NewConfigFromParams()
 	wg := new(sync.WaitGroup)
-	apiServer := api.NewApiServer(cfg.Socket(), wg)
+	apiServer := www.NewApiServer(cfg.Socket(), wg)
 	watchers := factory.Watchers(cfg, wg)
 	p := program.Program{
 		Api:      apiServer,

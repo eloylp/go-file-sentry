@@ -1,11 +1,11 @@
-package api
+package www
 
 import (
 	"encoding/json"
 	"net/http"
 )
 
-func (a *apiServer) statusHandler() http.HandlerFunc {
+func (s *www) statusHandler() http.HandlerFunc {
 
 	type Response struct {
 		Status       string   `json:"status"`
@@ -23,6 +23,6 @@ func (a *apiServer) statusHandler() http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		a.writeResponse(w, body)
+		s.writeResponse(w, body)
 	}
 }
