@@ -5,25 +5,26 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"net/url"
 	"sync"
 )
 
 type www struct {
-	address string
-	server  *http.Server
-	errors  chan error
-	wg      *sync.WaitGroup
+	socket *url.URL
+	server *http.Server
+	errors chan error
+	wg     *sync.WaitGroup
 }
 
 func (s *www) Errors() chan error {
 	return s.errors
 }
 
-func NewApiServer(address string, wg *sync.WaitGroup) *www {
+func NewApiServer(address *url.URL, wg *sync.WaitGroup) *www {
 	return &www{
-		address: address,
-		errors:  make(chan error),
-		wg:      wg,
+		socket: address,
+		errors: make(chan error),
+		wg:     wg,
 	}
 }
 
@@ -31,17 +32,28 @@ func (s *www) StartServer() {
 	s.server = &http.Server{
 		Handler: s.router(),
 	}
-	unixListener, err := net.Listen("unix", s.address)
+	a := s.address()
+	l, err := net.Listen(s.socket.Scheme, a)
 	if err != nil {
 		log.Fatal(err)
 
 	}
 	s.wg.Add(1)
-	err = s.server.Serve(unixListener)
+	err = s.server.Serve(l)
 	s.wg.Done()
 	if err != nil {
 		s.errors <- err
 	}
+}
+
+func (s *www) address() string {
+	var a string
+	if s.socket.Scheme == "unix" {
+		a = s.socket.Path
+	} else {
+		a = s.socket.Host
+	}
+	return a
 }
 
 func (s *www) Shutdown() {
